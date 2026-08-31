@@ -1,0 +1,45 @@
+name: rush-b-market
+
+# Ambiente de desenvolvimento. Para um dev novo no projeto:
+#
+#   docker compose up
+#
+# Nao precisa de Node, npm ou `npm install` na maquina: a imagem instala as
+# dependencias e o servidor sobe em http://localhost:3000 com hot reload.
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: dev
+      args:
+        NODE_VERSION: ${NODE_VERSION:-24-alpine}
+    image: rush-b-market/web:dev
+    init: true                      # PID 1 real -> Ctrl+C / docker stop encerram limpo
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: development
+      NEXT_TELEMETRY_DISABLED: "1"
+      # Escape hatch de hot reload. O watcher nativo do Turbopack recebe os
+      # eventos do bind mount no Docker Desktop (macOS/Windows) e no Linux,
+      # entao o padrao e polling DESLIGADO -- mais rapido e sem CPU ociosa.
+      # Se em alguma maquina salvar o arquivo nao recompilar (WSL2 com codigo
+      # no filesystem do Windows, VM remota, NFS), ligue o polling:
+      #   NEXT_WATCH_POLL_INTERVAL_MS=1000 WATCHPACK_POLLING=true docker compose up
+      NEXT_WATCH_POLL_INTERVAL_MS: "${NEXT_WATCH_POLL_INTERVAL_MS:-0}"
+      WATCHPACK_POLLING: "${WATCHPACK_POLLING:-false}"
+    volumes:
+      # Codigo-fonte: o host e a fonte da verdade, o container so le
+      - .:/app
+      # Volumes nomeados mascaram os diretorios acima: as deps compiladas para
+      # Linux ficam no container e nao colidem com o node_modules darwin/arm64
+      # do host; o cache do Next tambem nao suja a arvore local.
+      - node_modules:/app/node_modules
+      - next_cache:/app/.next
+
+volumes:
+  node_modules:
+  next_cache:
