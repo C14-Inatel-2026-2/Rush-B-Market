@@ -178,3 +178,81 @@ original ao final da sessão.
 - No pedido de remover "o segundo repositório Git", o agente investigou antes
   de executar e constatou que existia apenas um repositório — nada foi apagado.
   Comandos destrutivos merecem verificação prévia.
+
+---
+
+# Sessão Claude Code — Header do Projeto
+
+**Projeto:** Rush B Market (monorepo: `Frontend/` Next.js + `Backend/` Spring Boot)
+**Data:** 01/09/2026
+**Ferramenta:** Claude Code (modelo Claude Sonnet 5)
+**Branch:** `feat/header`
+**Objetivo:** implementar o header a partir do layout gerado por IA no Figma,
+seguindo esse escopo para manter o frontend padronizado.
+
+---
+
+## Resumo
+
+O layout do header foi gerado por outra IA, no Figma, e serve de especificação —
+cada integrante implementa a sua parte a partir do mesmo mock. A primeira entrega
+foi boa, mas não chegou no visual esperado; foi ajustada em rodadas de feedback
+até bater com o mock.
+
+---
+
+## Modelo e IA utilizados
+
+| Item | Detalhe |
+| --- | --- |
+| Provedor | Anthropic |
+| Modelo | Claude Sonnet 5 (identificador `claude-sonnet-5`) |
+| Interface | Claude Code, CLI oficial da Anthropic para engenharia de software |
+| Ambiente | macOS (Darwin 25.6.0), terminal zsh |
+| Layout de referência | Gerado por IA no Figma; usado como especificação visual |
+
+Ferramentas usadas:
+
+| Ferramenta | Uso nesta sessão |
+| --- | --- |
+| Execução de comandos (shell) | `docker exec` para ESLint e `tsc --noEmit` no container, `curl` para conferir o HTML, `git` |
+| Leitura e escrita de arquivos | Criação do `app/_components/Header.tsx`; edição de `app/layout.tsx` e `app/page.tsx` |
+| Leitura da documentação local | `node_modules/next/dist/docs/` para confirmar convenções do App Router no Next.js 16 (Server/Client Components, pastas privadas `_components`) |
+
+---
+
+## Prompts utilizados
+
+Pedimos para a IA gerar o header com base na imagem anexada do Figma. O primeiro
+resultado não foi tão satisfatório, então foram usados alguns prompts seguintes
+para ir configurando e lapidando: logo `AX` em amarelo/dourado como na
+referência, caixa quadrada com borda em volta de cada opção de filtro, a opção
+selecionada com um azul sutil e etc.
+
+---
+
+## O que foi entregue
+
+| Arquivo | Função |
+| --- | --- |
+| `Frontend/app/_components/Header.tsx` | Novo. Header fixo no topo (56px), fonte monoespaçada: logo `AX`, indicadores (`STAKED VALUE`, `LISTINGS INDEXED`), filtros de categoria e busca. Client Component com estado do filtro ativo e do texto buscado; dados em constantes no topo do arquivo |
+| `Frontend/app/layout.tsx` | Importa e renderiza `<Header />`; `body` com o fundo escuro do layout |
+| `Frontend/app/page.tsx` | Boilerplate do `create-next-app` trocado por placeholder neutro, para não interferir na área de conteúdo dos outros integrantes |
+
+A primeira versão saiu funcional e visualmente próxima, mas não no ponto que
+queríamos — o logo `AX` estava cinza e os filtros eram só texto, sem moldura.
+Foram necessários alguns prompts adicionais para lapidar até o visual do mock:
+logo com fundo dourado, texto preto e borda mais escura; borda em cada botão de
+filtro; estado ativo com borda azul e preenchimento azul translúcido
+(`bg-[#3b6fd4]/15`).
+
+---
+
+## Verificações executadas
+
+| Verificação | Resultado |
+| --- | --- |
+| ESLint nos arquivos alterados (no container) | Sem erros |
+| `tsc --noEmit` (no container) | Sem erros |
+| HTML servido em `http://localhost:3000` | HTTP 200; header presente (`AX`, `STAKED VALUE`, `LISTINGS INDEXED`, filtros, `SEARCH_SKIN_ID...`) |
+| Hot reload | Ajustes refletidos sem reiniciar o container |
