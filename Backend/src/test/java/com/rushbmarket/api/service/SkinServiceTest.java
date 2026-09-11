@@ -1,5 +1,7 @@
 package com.rushbmarket.api.service;
 
+import com.rushbmarket.api.exception.DuplicateSkinException;
+import com.rushbmarket.api.exception.DuplicateWeaponException;
 import com.rushbmarket.api.exception.MaxSkinsLimitExceededException;
 import com.rushbmarket.api.exception.PlayerNotFoundException;
 import com.rushbmarket.api.model.dto.request.AddSkinRequestDTO;
@@ -181,5 +183,119 @@ class SkinServiceTest {
                 .rarity("Covert")
                 .weapon(weapon)
                 .build();
+    }
+
+    // =====================================================================
+    // Regra 2: Sem Skins Duplicadas (mesmo nome)
+    // =====================================================================
+
+    @Test
+    @DisplayName("Deve lançar DuplicateSkinException quando o player já tem uma skin com o mesmo nome exato")
+    void deveLancarExcecaoQuandoNomeDaSkinJaExiste() {
+        // Arrange: player com 1 skin de nome "AK-47 | Redline"
+        Skin skinExistente = Skin.builder()
+                .id(1L)
+                .name("AK-47 | Redline")
+                .float_value("0.15")
+                .price(45.99)
+                .rarity("Classified")
+                .weapon("AK-47")
+                .player(player)
+                .build();
+        player.getSkins().add(skinExistente);
+
+        // Tenta adicionar outra skin com o mesmo nome (float diferente para isolar a regra)
+        AddSkinRequestDTO request = novaSkinRequest("AK-47 | Redline", "M4A4");
+
+        when(playerRepository.findById(1L)).thenReturn(Optional.of(player));
+
+        // Act + Assert
+        assertThatThrownBy(() -> skinService.addSkinToPlayer(1L, request))
+                .isInstanceOf(DuplicateSkinException.class)
+                .hasMessageContaining("AK-47 | Redline");
+    }
+
+    @Test
+    @DisplayName("Deve lançar DuplicateSkinException quando o nome é igual mas em caixa diferente (case-insensitive)")
+    void deveLancarExcecaoQuandoNomeDuplicadoCaseInsensitive() {
+        // Arrange: skin existente com nome em maiúsculas
+        Skin skinExistente = Skin.builder()
+                .id(1L)
+                .name("AK-47 | Redline")
+                .float_value("0.15")
+                .price(45.99)
+                .rarity("Classified")
+                .weapon("AK-47")
+                .player(player)
+                .build();
+        player.getSkins().add(skinExistente);
+
+        // Tenta adicionar com nome em minúsculas — deve ser bloqueado mesmo assim
+        AddSkinRequestDTO request = novaSkinRequest("ak-47 | redline", "M4A4");
+
+        when(playerRepository.findById(1L)).thenReturn(Optional.of(player));
+
+        // Act + Assert
+        assertThatThrownBy(() -> skinService.addSkinToPlayer(1L, request))
+                .isInstanceOf(DuplicateSkinException.class)
+                .hasMessageContaining("ak-47 | redline");
+    }
+
+    @Test
+    @DisplayName("Não deve salvar o player quando a skin duplicada é detectada")
+    void naoDeveSalvarQuandoSkinDuplicadaDetectada() {
+        // Arrange
+        Skin skinExistente = Skin.builder()
+                .id(1L)
+                .name("AK-47 | Redline")
+                .float_value("0.15")
+                .price(45.99)
+                .rarity("Classified")
+                .weapon("AK-47")
+                .player(player)
+                .build();
+        player.getSkins().add(skinExistente);
+
+        AddSkinRequestDTO request = novaSkinRequest("AK-47 | Redline", "M4A4");
+
+        when(playerRepository.findById(1L)).thenReturn(Optional.of(player));
+
+        // Act
+        try {
+            skinService.addSkinToPlayer(1L, request);
+        } catch (DuplicateSkinException ignored) {
+            // exceção esperada
+        }
+
+        // Assert: nenhuma persistência deve ocorrer e o inventário não muda
+        verify(playerRepository, never()).save(any(Player.class));
+        assertThat(player.getSkins()).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("Não deve lançar DuplicateSkinException quando a skin tem nome diferente (mesmo que mesma arma)")
+    void naoDeveLancarDuplicateSkinExcecaoQuandoNomeDiferente() {
+        // Arrange: skin existente com nome "AK-47 | Redline"
+        Skin skinExistente = Skin.builder()
+                .id(1L)
+                .name("AK-47 | Redline")
+                .float_value("0.15")
+                .price(45.99)
+                .rarity("Classified")
+                .weapon("AK-47")
+                .player(player)
+                .build();
+        player.getSkins().add(skinExistente);
+
+        // Tenta adicionar com nome diferente mas mesma arma
+        // — a Regra 2 (duplicata de nome) NÃO deve ser lançada; a Regra 3 sim
+        AddSkinRequestDTO request = novaSkinRequest("AK-47 | Asiimov", "AK-47");
+
+        when(playerRepository.findById(1L)).thenReturn(Optional.of(player));
+
+        // Act + Assert: a exceção lançada deve ser DuplicateWeaponException, não DuplicateSkinException
+        assertThatThrownBy(() -> skinService.addSkinToPlayer(1L, request))
+                .isInstanceOf(DuplicateWeaponException.class)
+                .isNotInstanceOf(DuplicateSkinException.class);
     }
 }
