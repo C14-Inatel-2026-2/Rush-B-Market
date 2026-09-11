@@ -1,0 +1,51 @@
+version: '3.9'
+
+services:
+  # Banco de dados PostgreSQL
+  db:
+    image: postgres:16-alpine
+    container_name: rushbmarket-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: rushbmarket
+      POSTGRES_USER: csuser
+      POSTGRES_PASSWORD: cspass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U csuser -d rushbmarket"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - rushb-net
+
+  # Aplicação Spring Boot (opcional - descomente para rodar com Docker)
+  # app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: rushbmarket-app
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/rushbmarket
+  #     SPRING_DATASOURCE_USERNAME: csuser
+  #     SPRING_DATASOURCE_PASSWORD: cspass
+  #   networks:
+  #     - rushb-net
+
+networks:
+  rushb-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
