@@ -16,10 +16,7 @@ mvn spring-boot:run
 
 ### 3. Testar!
 ```bash
-# PowerShell
-.\test-api.ps1
-
-# Ou acesse o Swagger
+# Acesse o Swagger
 start http://localhost:8080/swagger-ui.html
 ```
 
