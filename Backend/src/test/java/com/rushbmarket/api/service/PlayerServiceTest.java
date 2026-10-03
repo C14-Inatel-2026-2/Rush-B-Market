@@ -22,6 +22,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -139,5 +140,42 @@ class PlayerServiceTest {
         assertThatThrownBy(() -> playerService.createPlayer(request))
                 .isInstanceOf(EmailAlreadyExistsException.class)
                 .hasMessageContaining("bruno@rushb.com");
+    }
+
+    // =====================================================================
+    // COM MOCK — Teste 3: deletePlayer com sucesso
+    // =====================================================================
+
+    @Test
+    @DisplayName("Deve deletar o player quando o ID existe e chamar delete() no repositório")
+    void deveDeletarPlayerComSucesso() {
+        // Arrange
+        when(playerRepository.findById(1L)).thenReturn(Optional.of(player));
+
+        // Act
+        playerService.deletePlayer(1L);
+
+        // Assert: delete foi chamado exatamente uma vez com o player correto
+        verify(playerRepository).findById(1L);
+        verify(playerRepository).delete(player);
+    }
+
+    // =====================================================================
+    // COM MOCK — Teste negativo: deletePlayer com ID inexistente
+    // =====================================================================
+
+    @Test
+    @DisplayName("Deve lançar PlayerNotFoundException ao deletar player com ID inexistente")
+    void deveLancarExcecaoAoDeletarPlayerInexistente() {
+        // Arrange
+        when(playerRepository.findById(99L)).thenReturn(Optional.empty());
+
+        // Act + Assert
+        assertThatThrownBy(() -> playerService.deletePlayer(99L))
+                .isInstanceOf(PlayerNotFoundException.class)
+                .hasMessageContaining("99");
+
+        // Assert: delete nunca deve ser chamado
+        verify(playerRepository, never()).delete(any(Player.class));
     }
 }
