@@ -1,9 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import ItemCard from "../app/_components/ItemCard";
-import type { Item } from "../data/mockItems";
 
-// Mock: substituímos o next/image por uma <img> simples para isolar o ItemCard
-// e verificar exatamente quais propriedades ele envia para o componente de imagem.
+// Mock: substituímos o next/image por um <img> simples para inspecionar
+// as props recebidas, sem depender da otimização de imagens do Next.
 const mockImage = jest.fn();
 
 jest.mock("next/image", () => ({
@@ -11,18 +10,18 @@ jest.mock("next/image", () => ({
   default: (props: { src: string; alt: string; fill?: boolean }) => {
     mockImage(props);
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={props.src} alt={props.alt} data-testid="imagem-mockada" />;
+    return <img src={props.src || undefined} alt={props.alt} data-testid="skin-image" />;
   },
 }));
 
-const itemBase: Item = {
-  id: 7,
-  name: "AWP | Oni Taiji",
-  category: "COVERT RIFLES",
-  price: 120.5,
-  image: "/skins/AWP Oni Taiji.png",
-  wearLabel: "MW",
-  floatValue: "0.1123",
+const itemBase = {
+  id: 1,
+  name: "Bayonet | Crimson Web",
+  category: "COVERT KNIVES",
+  price: 492.11,
+  image: "/skins/Bayonet Crimson Web.png",
+  wearLabel: "FN",
+  floatValue: "0.0603",
 };
 
 describe("ItemCard - testes com mock do next/image", () => {
@@ -31,45 +30,41 @@ describe("ItemCard - testes com mock do next/image", () => {
   });
 
   // TESTE 1: COM MOCK (Positivo)
-  it("deve enviar o caminho da imagem e o nome da skin para o next/image", () => {
+  it("deve passar src, alt e fill corretos para o componente de imagem", () => {
     render(<ItemCard {...itemBase} />);
 
+    expect(mockImage).toHaveBeenCalledTimes(1);
     expect(mockImage).toHaveBeenCalledWith(
       expect.objectContaining({
-        src: "/skins/AWP Oni Taiji.png",
-        alt: "AWP | Oni Taiji",
+        src: "/skins/Bayonet Crimson Web.png",
+        alt: "Bayonet | Crimson Web",
+        fill: true,
       })
     );
   });
 
-  // TESTE 2: COM MOCK (Positivo)
-  it("deve usar o modo fill para a imagem ocupar o container do card", () => {
-    render(<ItemCard {...itemBase} />);
+  // TESTE 2: COM MOCK (Negativo)
+  it("não deve quebrar o card quando a skin não possui imagem", () => {
+    render(<ItemCard {...itemBase} image="" />);
 
-    expect(mockImage.mock.calls[0][0]).toHaveProperty("fill", true);
+    expect(mockImage).toHaveBeenCalledWith(expect.objectContaining({ src: "" }));
+    expect(screen.getByText("★ Bayonet | Crimson Web")).toBeInTheDocument();
+    expect(screen.getByText("$492.11")).toBeInTheDocument();
   });
 
   // TESTE 3: COM MOCK (Positivo)
   it("deve exibir a imagem mockada com o caminho original, sem otimização do Next", () => {
     render(<ItemCard {...itemBase} />);
 
-    expect(screen.getByTestId("imagem-mockada")).toHaveAttribute("src", "/skins/AWP Oni Taiji.png");
+    expect(screen.getByTestId("skin-image")).toHaveAttribute("src", "/skins/Bayonet Crimson Web.png");
   });
 
   // TESTE 4: COM MOCK (Negativo)
-  it("não deve renderizar mais de uma imagem por card", () => {
-    render(<ItemCard {...itemBase} />);
-
-    expect(mockImage).toHaveBeenCalledTimes(1);
-    expect(screen.getAllByTestId("imagem-mockada")).toHaveLength(1);
-  });
-
-  // TESTE 5: COM MOCK (Negativo)
   it("não deve usar a categoria nem o preço como texto alternativo da imagem", () => {
     render(<ItemCard {...itemBase} />);
 
     const propsDaImagem = mockImage.mock.calls[0][0];
-    expect(propsDaImagem.alt).not.toBe("COVERT RIFLES");
-    expect(propsDaImagem.alt).not.toContain("120.50");
+    expect(propsDaImagem.alt).not.toBe("COVERT KNIVES");
+    expect(propsDaImagem.alt).not.toContain("492.11");
   });
 });

@@ -1,8 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import ItemCard from "../app/_components/ItemCard";
-import type { Item } from "../data/mockItems";
 
-const itemBase: Item = {
+const itemBase = {
   id: 1,
   name: "Bayonet | Crimson Web",
   category: "COVERT KNIVES",
@@ -12,7 +11,7 @@ const itemBase: Item = {
   floatValue: "0.0603",
 };
 
-describe("ItemCard - testes unitários (sem mock)", () => {
+describe("ItemCard", () => {
   // TESTE 1: SEM MOCK (Positivo)
   it("deve renderizar nome, categoria, condição e float da skin", () => {
     render(<ItemCard {...itemBase} />);
@@ -24,17 +23,19 @@ describe("ItemCard - testes unitários (sem mock)", () => {
   });
 
   // TESTE 2: SEM MOCK (Positivo)
+  it("deve formatar o preço sempre com duas casas decimais", () => {
+    const { rerender } = render(<ItemCard {...itemBase} price={100} />);
+    expect(screen.getByText("$100.00")).toBeInTheDocument();
+
+    rerender(<ItemCard {...itemBase} price={492.1} />);
+    expect(screen.getByText("$492.10")).toBeInTheDocument();
+  });
+
+  // TESTE 3: SEM MOCK (Positivo)
   it("deve renderizar a imagem da skin usando o nome como texto alternativo", () => {
     render(<ItemCard {...itemBase} />);
 
     expect(screen.getByRole("img", { name: "Bayonet | Crimson Web" })).toBeInTheDocument();
-  });
-
-  // TESTE 3: SEM MOCK (Positivo)
-  it("deve formatar o preço com cifrão e duas casas decimais", () => {
-    render(<ItemCard {...itemBase} price={9.5} />);
-
-    expect(screen.getByText("$9.50")).toBeInTheDocument();
   });
 
   // TESTE 4: SEM MOCK (Negativo)
