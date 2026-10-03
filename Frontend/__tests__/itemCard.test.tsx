@@ -30,4 +30,34 @@ describe("ItemCard", () => {
     rerender(<ItemCard {...itemBase} price={492.1} />);
     expect(screen.getByText("$492.10")).toBeInTheDocument();
   });
+
+  // TESTE 3: SEM MOCK (Positivo)
+  it("deve renderizar a imagem da skin usando o nome como texto alternativo", () => {
+    render(<ItemCard {...itemBase} />);
+
+    expect(screen.getByRole("img", { name: "Bayonet | Crimson Web" })).toBeInTheDocument();
+  });
+
+  // TESTE 4: SEM MOCK (Negativo)
+  it("não deve exibir preço inteiro sem as casas decimais", () => {
+    render(<ItemCard {...itemBase} price={50} />);
+
+    expect(screen.getByText("$50.00")).toBeInTheDocument();
+    expect(screen.queryByText("$50")).not.toBeInTheDocument();
+  });
+
+  // TESTE 5: SEM MOCK (Negativo)
+  it("não deve exibir mais de duas casas decimais no preço", () => {
+    render(<ItemCard {...itemBase} price={12.3456} />);
+
+    expect(screen.getByText("$12.35")).toBeInTheDocument();
+    expect(screen.queryByText("$12.3456")).not.toBeInTheDocument();
+  });
+
+  // TESTE 6: SEM MOCK (Negativo)
+  it("não deve quebrar a renderização quando o preço for zero", () => {
+    render(<ItemCard {...itemBase} price={0} />);
+
+    expect(screen.getByText("$0.00")).toBeInTheDocument();
+  });
 });

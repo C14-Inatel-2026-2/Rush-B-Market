@@ -51,4 +51,20 @@ describe("ItemCard - testes com mock do next/image", () => {
     expect(screen.getByText("★ Bayonet | Crimson Web")).toBeInTheDocument();
     expect(screen.getByText("$492.11")).toBeInTheDocument();
   });
+
+  // TESTE 3: COM MOCK (Positivo)
+  it("deve exibir a imagem mockada com o caminho original, sem otimização do Next", () => {
+    render(<ItemCard {...itemBase} />);
+
+    expect(screen.getByTestId("skin-image")).toHaveAttribute("src", "/skins/Bayonet Crimson Web.png");
+  });
+
+  // TESTE 4: COM MOCK (Negativo)
+  it("não deve usar a categoria nem o preço como texto alternativo da imagem", () => {
+    render(<ItemCard {...itemBase} />);
+
+    const propsDaImagem = mockImage.mock.calls[0][0];
+    expect(propsDaImagem.alt).not.toBe("COVERT KNIVES");
+    expect(propsDaImagem.alt).not.toContain("492.11");
+  });
 });
