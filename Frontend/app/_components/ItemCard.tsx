@@ -1,7 +1,9 @@
 import Image from 'next/image';
-import { Item } from '../../lib/mockItems'; // Importe a interface aqui
+import type { Item } from '../../data/mockItems';
 
-export default function ItemCard({ name, category, price, image, wearLabel, floatValue }: Item) {
+type ItemCardProps = Omit<Item, 'id'>;
+
+export default function ItemCard({ name, category, price, image, wearLabel, floatValue }: ItemCardProps) {
   return (
     <div className="relative flex flex-col border border-[#2a2f37] bg-[#0d1014] p-3 font-mono transition-colors hover:border-[#35c9d8] group cursor-pointer">
       {/* Etiqueta de Condição (ex: FN) */}
