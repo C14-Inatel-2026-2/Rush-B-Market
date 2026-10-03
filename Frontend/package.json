@@ -9,7 +9,8 @@
     "lint": "eslint",
     "docker:dev": "docker compose up --build",
     "docker:stop": "docker compose down",
-    "docker:reset": "docker compose down -v && docker compose up --build"
+    "docker:reset": "docker compose down -v && docker compose up --build",
+    "test": "jest --verbose"
   },
   "dependencies": {
     "next": "16.3.3",
@@ -18,11 +19,16 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.3",
+    "jest": "^30.5.2",
+    "jest-environment-jsdom": "^30.5.2",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
