@@ -22,11 +22,14 @@ pipeline {
         }
     }
 
-    post {
+        post {
         always {
             junit(
                 testResults: 'Backend/target/surefire-reports/TEST-*.xml'
             )
+
+            echo 'Limpando o workspace do Jenkins...'
+            deleteDir()
         }
 
         success {
