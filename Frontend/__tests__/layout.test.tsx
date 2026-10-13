@@ -5,7 +5,7 @@ describe("RootLayout", () => {
   it("deve renderizar o conteúdo da página passado na propriedade children", () => {
     // Chamamos o componente como uma função pura para contornar a limitação do JSDOM com a tag <html>
     const filhoDeTeste = <div data-testid="conteudo-filho">Conteúdo da Home</div>;
-    const layout = RootLayout({ children: filhoDeTeste });
+    const layout = RootLayout({ children: filhoDeTeste, params: Promise.resolve({}) });
     
     // O layout retorna a tag <html>. O filho do <html> é o <body>
     const body = layout.props.children;
@@ -19,7 +19,7 @@ describe("RootLayout", () => {
 
   // TESTE 2: SEM MOCK (Positivo)
   it("deve aplicar as classes CSS base do Tailwind no elemento body", () => {
-    const layout = RootLayout({ children: <div>Teste</div> });
+    const layout = RootLayout({ children: <div>Teste</div>, params: Promise.resolve({}) });
     const body = layout.props.children;
     
     // Inspecionamos a string de classes diretamente nas propriedades do objeto React retornado
