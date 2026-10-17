@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# relatorio de testes gerado no CI (jest-junit)
+/reports
