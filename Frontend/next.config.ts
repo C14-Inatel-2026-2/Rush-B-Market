@@ -9,6 +9,9 @@ const pollIntervalMs = Number(process.env.NEXT_WATCH_POLL_INTERVAL_MS);
 const usePolling = Number.isFinite(pollIntervalMs) && pollIntervalMs > 0;
 
 const nextConfig: NextConfig = {
+  // Gera .next/standalone no build: servidor minimo (server.js) usado pela
+  // imagem de producao (Dockerfile) no deploy do J5. Nao afeta o `next dev`.
+  output: "standalone",
   ...(usePolling ? { watchOptions: { pollIntervalMs } } : {}),
 };
 
