@@ -38,10 +38,8 @@ class SkinServiceQueryTest {
     @Test
     @DisplayName("getAllSkins deve retornar a lista de skins convertida para DTO")
     void deveRetornarTodasAsSkins() {
-        Skin akRedline = Skin.builder().id(1L).name("AK-47 | Redline").float_value("0.15")
-                .price(50.0).rarity("Classified").weapon("AK-47").build();
-        Skin awpDragonLore = Skin.builder().id(2L).name("AWP | Dragon Lore").float_value("0.02")
-                .price(5000.0).rarity("Covert").weapon("AWP").build();
+        Skin akRedline = novaSkin(1L, "AK-47 | Redline", "AK-47");
+        Skin awpDragonLore = novaSkin(2L, "AWP | Dragon Lore", "AWP");
         when(skinRepository.findAll()).thenReturn(List.of(akRedline, awpDragonLore));
 
         List<SkinResponseDTO> todasAsSkins = skinService.getAllSkins();
@@ -54,8 +52,7 @@ class SkinServiceQueryTest {
     @Test
     @DisplayName("getSkinById deve retornar a skin quando o ID existe")
     void deveRetornarSkinPorIdComSucesso() {
-        Skin karambitFade = Skin.builder().id(1L).name("Karambit | Fade").float_value("0.01")
-                .price(1200.0).rarity("Covert").weapon("Knife").build();
+        Skin karambitFade = novaSkin(1L, "Karambit | Fade", "Knife");
         when(skinRepository.findById(1L)).thenReturn(Optional.of(karambitFade));
 
         SkinResponseDTO skinEncontrada = skinService.getSkinById(1L);
@@ -85,5 +82,10 @@ class SkinServiceQueryTest {
                 .hasMessageContaining("99");
 
         verify(skinRepository, never()).delete(any());
+    }
+
+    private Skin novaSkin(Long id, String nome, String arma) {
+        return Skin.builder().id(id).name(nome).float_value("0.10")
+                .price(100.0).rarity("Covert").weapon(arma).build();
     }
 }
