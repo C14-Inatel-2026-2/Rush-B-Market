@@ -26,31 +26,10 @@ public class SkinService {
 
     @Transactional
     public SkinResponseDTO addSkinToPlayer(Long playerId, AddSkinRequestDTO request) {
-        Player player = playerRepository.findById(playerId)
-                .orElseThrow(() -> new PlayerNotFoundException("Player with ID " + playerId + " not found"));
-
-        // Regra 1: Player não pode ter mais de 5 skins
-        if (player.getSkins().size() >= MAX_SKINS_PER_PLAYER) {
-            throw new MaxSkinsLimitExceededException(
-                    String.format("Player already has maximum of %d skins", MAX_SKINS_PER_PLAYER)
-            );
-        }
-
-        // Regra 2: Player não pode ter skin duplicada (mesmo nome)
-        boolean hasDuplicateName = player.getSkins().stream()
-                .anyMatch(skin -> skin.getName().equalsIgnoreCase(request.getName()));
-
-        if (hasDuplicateName) {
-            throw new DuplicateSkinException("Player already has a skin named '" + request.getName() + "'");
-        }
-
-        // Regra 3: Player não pode ter mais de uma skin da mesma arma
-        boolean hasSameWeapon = player.getSkins().stream()
-                .anyMatch(skin -> skin.getWeapon().equalsIgnoreCase(request.getWeapon()));
-
-        if (hasSameWeapon) {
-            throw new DuplicateWeaponException("Player already has a skin for weapon '" + request.getWeapon() + "'");
-        }
+        Player player = findPlayerOrThrow(playerId);
+        validateSkinLimit(player);
+        validateUniqueName(player, request.getName());
+        validateUniqueWeapon(player, request.getWeapon());
 
         Skin skin = SkinMapper.toEntity(request);
         player.addSkin(skin);
@@ -81,5 +60,36 @@ public class SkinService {
                 .orElseThrow(() -> new SkinNotFoundException("Skin with ID " + id + " not found"));
 
         skinRepository.delete(skin);
+    }
+
+    private Player findPlayerOrThrow(Long playerId) {
+        return playerRepository.findById(playerId)
+                .orElseThrow(() -> new PlayerNotFoundException("Player with ID " + playerId + " not found"));
+    }
+
+    private void validateSkinLimit(Player player) {
+        if (player.getSkins().size() >= MAX_SKINS_PER_PLAYER) {
+            throw new MaxSkinsLimitExceededException(
+                    String.format("Player already has maximum of %d skins", MAX_SKINS_PER_PLAYER)
+            );
+        }
+    }
+
+    private void validateUniqueName(Player player, String name) {
+        boolean hasDuplicateName = player.getSkins().stream()
+                .anyMatch(skin -> skin.getName().equalsIgnoreCase(name));
+
+        if (hasDuplicateName) {
+            throw new DuplicateSkinException("Player already has a skin named '" + name + "'");
+        }
+    }
+
+    private void validateUniqueWeapon(Player player, String weapon) {
+        boolean hasSameWeapon = player.getSkins().stream()
+                .anyMatch(skin -> skin.getWeapon().equalsIgnoreCase(weapon));
+
+        if (hasSameWeapon) {
+            throw new DuplicateWeaponException("Player already has a skin for weapon '" + weapon + "'");
+        }
     }
 }
