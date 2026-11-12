@@ -46,6 +46,7 @@ Cada integrante registra como usou IA no projeto (ferramenta, modelo, para que u
 | Integrante | Registro |
 | --- | --- |
 | Bruno Alvarenga | [Backend/Docs/PROMPTS_HISTORY.md](Backend/Docs/PROMPTS_HISTORY.md) |
+| Bruce Alvarenga | [IA/Backend/Bruce-Alvarenga-Claude.md](IA/Backend/Bruce-Alvarenga-Claude.md) |
 | André Araújo | [IA/Frontend/Andre-Araujo-Claude.md](IA/Frontend/Andre-Araujo-Claude.md) |
 | Demais integrantes | Pasta [IA/](IA/) |
 
@@ -145,5 +146,5 @@ cd Frontend && npm install && npm test
 ## Fluxo de trabalho
 
 1. Cada tarefa vem de uma história do backlog no Jira.
-2. O desenvolvimento acontece numa branch própria (`feat/…`, `test/…`, `ci/…`, `fix/…`, `docs/…`) criada a partir da `homolog`.
+2. O desenvolvimento acontece numa branch própria (`feat/…`, `test/…`, `ci/…`, `fix/…`, `docs/…`, `refactor/…`) criada a partir da `homolog`.
 3. A branch é enviada ao GitHub e um **Pull Request para a `homolog`** é aberto e revisado antes do merge.
