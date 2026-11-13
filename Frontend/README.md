@@ -52,6 +52,78 @@ O que acontece na primeira execução (leva ~2 minutos):
 Nas execuções seguintes a imagem já está pronta e o servidor responde em ~3
 segundos.
 
+## Rodando com o backend
+
+A página inicial carrega as skins pela API. Para ver o catálogo com os dados do
+backend, deixe o PostgreSQL e a API ativos junto com o frontend. São três
+serviços: o banco, a API Spring Boot e a aplicação Next.js.
+
+### 1. Suba o banco de dados
+
+Na raiz do monorepo, abra um terminal e inicie o PostgreSQL:
+
+```bash
+cd Backend
+docker compose up -d db
+docker compose ps
+```
+
+Espere o serviço `db` ficar saudável antes de iniciar a API.
+
+### 2. Inicie a API
+
+Em outro terminal, na raiz do monorepo, entre em `Backend` e execute:
+
+**Windows PowerShell:**
+
+```powershell
+.\mvnw.cmd spring-boot:run
+```
+
+**Linux/macOS/Git Bash:**
+
+```bash
+./mvnw spring-boot:run
+```
+
+A API ficará disponível em `http://localhost:8080`. Você pode confirmar que
+ela iniciou acessando <http://localhost:8080/actuator/health>.
+
+### 3. Inicie o frontend
+
+Em outro terminal, na pasta `Frontend`, rode:
+
+```bash
+docker compose up
+```
+
+O Compose configura `API_URL` como
+`http://host.docker.internal:8080` por padrão. Esse endereço permite que o
+frontend dentro do Docker acesse a API executada na máquina host. Se precisar
+usar outro endereço, defina `API_URL` antes de iniciar o Compose:
+
+**Windows PowerShell:**
+
+```powershell
+$env:API_URL = "http://host.docker.internal:8080"
+docker compose up
+```
+
+**Linux/macOS/Git Bash:**
+
+```bash
+API_URL=http://host.docker.internal:8080 docker compose up
+```
+
+Abra <http://localhost:3000>. Se o banco ou a API não estiverem ativos, a
+vitrine pode exibir a mensagem de que não foi possível carregar as skins.
+
+Se rodar o frontend diretamente na máquina com `npm run dev`, a URL padrão da
+API é `http://localhost:8080`, então não é necessário definir `API_URL`.
+
+Para encerrar, use `Ctrl+C` nos terminais da API e do frontend. Para parar o
+banco, execute `docker compose down` dentro de `Backend`.
+
 ### Hot reload
 
 Edite qualquer arquivo do projeto no seu editor de sempre — por exemplo
