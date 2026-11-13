@@ -9,6 +9,20 @@
 - **Prompt:** "Iniciar projeto Next.js chamado rush-b-market na pasta Frontend, com TypeScript e Tailwind, apenas o padrão." / "Criar container Docker de desenvolvimento, com boas práticas, e atualização automática ao salvar."
 - **Ajuste:** o hot reload não funcionou de primeira; a IA descobriu que o polling era a causa, e não a solução. Registro completo em [Claude-session(chore/setup-frontend-nextjs).md](<Claude-session(chore/setup-frontend-nextjs).md>).
 
+## Testes do ItemCard (PR #41)
+
+- **Pedi:** testes unitários e com mock para o componente ItemCard.
+- **Resultado:** `itemCard.test.tsx` e `itemCard.mock.test.tsx`, com mock do `next/image`.
+- **Prompt (resumido):** pedi um teste unitário e um teste com mock do ItemCard, com casos positivos e negativos.
+- **Ajuste:** o André fez os mesmos arquivos ao mesmo tempo (PR #40); as duas versões foram juntadas na resolução do conflito.
+
+## Job de testes automatizados do frontend (PR #54, issue #47)
+
+- **Pedi:** o job do Jenkins que roda os testes do frontend.
+- **Resultado:** `CI-CD/J2-Testes-Frontend.Jenkinsfile` e o `jest-junit`, que gera o `reports/junit.xml` lido pelo Jenkins (script `test:ci`).
+- **Prompt (resumido):** pedi para implementar a issue #47 — testes automatizados do frontend no Jenkins.
+- **Descartado:** uma primeira versão com a pipeline completa do frontend (`Frontend.Jenkinsfile` e `Dockerfile` de produção), porque ia além da minha issue; fiquei só com o job de testes.
+
 ## Vitrine consumindo a API (PR #70)
 
 - **Pedi:** ligar a vitrine ao `GET /skins` do backend (RF14) e criar a página de detalhe da skin e as telas de players.
