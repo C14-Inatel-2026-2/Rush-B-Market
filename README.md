@@ -49,7 +49,7 @@ Cada integrante registra como usou IA no projeto (ferramenta, modelo, para que u
 | Bruce Alvarenga | [IA/Backend/Bruce-Alvarenga-Claude.md](IA/Backend/Bruce-Alvarenga-Claude.md) |
 | André Araújo | [IA/Frontend/Andre-Araujo-Claude.md](IA/Frontend/Andre-Araujo-Claude.md) |
 | Luis Teles | [IA/Frontend/Luis-Teles-Claude.md](IA/Frontend/Luis-Teles-Claude.md) |
-| Demais integrantes | Pasta [IA/](IA/) |
+| Gabriel Pivoto | [IA/Frontend/Gabriel-Pivoto-Codex.md](IA/Frontend/Gabriel-Pivoto-Codex.md) |
 
 ## Requisitos funcionais
 
