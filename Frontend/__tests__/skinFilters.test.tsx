@@ -46,13 +46,29 @@ function renderMarket() {
 }
 
 describe("Filtros e busca da vitrine", () => {
-  it("filtra pela categoria selecionada", () => {
+  it("mostra todas as skins e deixa ALL ativo ao abrir a vitrine", () => {
     renderMarket();
 
-    fireEvent.click(screen.getByRole("button", { name: "KNIVES" }));
+    expect(screen.getByRole("button", { name: "ALL" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getAllByRole("img").map((image) => image.getAttribute("alt"))).toEqual(
+      items.map((item) => item.name),
+    );
+  });
 
-    expect(screen.getByRole("img", { name: "Karambit | Doppler" })).toBeInTheDocument();
-    expect(screen.queryByRole("img", { name: "M4A4 | Howl" })).not.toBeInTheDocument();
+  const categoryCases: Array<[string, string[]]> = [
+    ["COVERT", ["Karambit | Doppler", "M4A4 | Howl"]],
+    ["KNIVES", ["Karambit | Doppler"]],
+    ["RIFLES", ["M4A4 | Howl"]],
+    ["PISTOLS", ["Glock-18 | Fade"]],
+  ];
+
+  it.each(categoryCases)("filtra somente as skins da categoria %s", (category, expectedNames) => {
+    renderMarket();
+
+    fireEvent.click(screen.getByRole("button", { name: category }));
+
+    expect(screen.getByRole("button", { name: category })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getAllByRole("img").map((image) => image.getAttribute("alt"))).toEqual(expectedNames);
   });
 
   it("filtra pelo nome sem diferenciar maiúsculas e minúsculas", () => {
@@ -66,7 +82,18 @@ describe("Filtros e busca da vitrine", () => {
     expect(screen.queryByRole("img", { name: "Karambit | Doppler" })).not.toBeInTheDocument();
   });
 
-  it("combina categoria e nome e informa quando não há resultados", () => {
+  it("combina categoria e busca e mantém os itens que correspondem a ambas", () => {
+    renderMarket();
+
+    fireEvent.click(screen.getByRole("button", { name: "RIFLES" }));
+    fireEvent.change(screen.getByRole("searchbox", { name: "Buscar skin pelo nome" }), {
+      target: { value: "hOwL" },
+    });
+
+    expect(screen.getAllByRole("img").map((image) => image.getAttribute("alt"))).toEqual(["M4A4 | Howl"]);
+  });
+
+  it("mostra a mensagem definida no critério quando não há resultados", () => {
     renderMarket();
 
     fireEvent.click(screen.getByRole("button", { name: "RIFLES" }));
@@ -74,6 +101,7 @@ describe("Filtros e busca da vitrine", () => {
       target: { value: "Karambit" },
     });
 
-    expect(screen.getByText("NENHUMA SKIN ENCONTRADA.")).toBeInTheDocument();
+    expect(screen.getByText("Nenhuma skin encontrada")).toBeInTheDocument();
+    expect(screen.queryAllByRole("img")).toHaveLength(0);
   });
 });

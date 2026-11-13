@@ -19,7 +19,7 @@ export default function SkinGrid({ items }: { items: Item[] }) {
   });
 
   if (filteredItems.length === 0) {
-    return <p className="text-[11px] tracking-[0.1em] text-[#5a6069]">NENHUMA SKIN ENCONTRADA.</p>;
+    return <p className="text-[11px] tracking-[0.1em] text-[#5a6069]">Nenhuma skin encontrada</p>;
   }
 
   return (
