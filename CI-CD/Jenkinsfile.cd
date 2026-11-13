@@ -1,0 +1,153 @@
+pipeline {
+    agent any
+
+    parameters {
+        choice(
+            name: 'PROJECT',
+            choices: ['BOTH', 'BACKEND', 'FRONTEND'],
+            description: '''Selecione quais aplicações serão publicadas:
+BOTH: Backend no Render e Frontend na Vercel.
+BACKEND: somente Backend no Render.
+FRONTEND: somente Frontend na Vercel.'''
+        )
+        string(
+            name: 'RENDER_HEALTH_URL',
+            defaultValue: '',
+            trim: true,
+            description: 'URL pública do health check do Backend, incluindo /actuator/health. Obrigatória quando BACKEND estiver selecionado.'
+        )
+    }
+
+    environment {
+        // IDs do projeto rush-b já utilizados no pipeline anterior.
+        VERCEL_ORG_ID     = 'team_z83BMi1fdFZWJF1Nyx0awH7h'
+        VERCEL_PROJECT_ID = 'prj_0dlKWW1fvtjz2A3e9pX5W4AJl9O6'
+        VERCEL_CLI        = 'vercel@65.15.0'
+        VERCEL_PROD_URL   = 'https://rush-b-seven.vercel.app'
+    }
+
+    options {
+        timestamps()
+        timeout(time: 30, unit: 'MINUTES')
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '15'))
+    }
+
+    stages {
+        stage('Checkout e validação inicial') {
+            steps {
+                checkout scm
+                script {
+                    if (params.PROJECT in ['BOTH', 'BACKEND'] && !(params.RENDER_HEALTH_URL?.trim())) {
+                        error('Informe RENDER_HEALTH_URL com a URL pública terminada em /actuator/health.')
+                    }
+                }
+            }
+        }
+
+        stage('Deploy Backend - Render') {
+            when {
+                expression { params.PROJECT in ['BOTH', 'BACKEND'] }
+            }
+            steps {
+                echo 'Solicitando ao Render a publicação do Backend...'
+                withCredentials([string(credentialsId: 'render-deploy-hook', variable: 'RENDER_DEPLOY_HOOK')]) {
+                    sh '''
+                        set +x
+                        curl --fail --silent --show-error \\
+                            --request POST \\
+                            --output /dev/null \\
+                            "$RENDER_DEPLOY_HOOK"
+                    '''
+                }
+            }
+        }
+
+        stage('Validar Backend - Render') {
+            when {
+                expression { params.PROJECT in ['BOTH', 'BACKEND'] }
+            }
+            steps {
+                echo "Aguardando o Backend responder em ${params.RENDER_HEALTH_URL}..."
+                sh '''
+                    set +x
+                    for tentativa in $(seq 1 40); do
+                        HTTP_CODE=$(curl --silent --output /tmp/render-health.json \\
+                            --write-out "%{http_code}" --max-time 20 "$RENDER_HEALTH_URL" || true)
+                        echo "Tentativa ${tentativa}/40 - HTTP ${HTTP_CODE}"
+
+                        if [ "$HTTP_CODE" = "200" ] && grep -q '"status"[[:space:]]*:[[:space:]]*"UP"' /tmp/render-health.json; then
+                            echo 'Backend saudável no Render.'
+                            exit 0
+                        fi
+                        sleep 15
+                    done
+
+                    echo 'Backend não ficou saudável dentro do tempo limite.'
+                    [ ! -f /tmp/render-health.json ] || cat /tmp/render-health.json
+                    exit 1
+                '''
+            }
+        }
+
+        stage('Deploy Frontend - Vercel') {
+            tools { nodejs 'NodeJS-24' }
+            when {
+                expression { params.PROJECT in ['BOTH', 'FRONTEND'] }
+            }
+            steps {
+                echo 'Publicando o Frontend na Vercel...'
+                withCredentials([string(credentialsId: 'vercel-token', variable: 'VERCEL_TOKEN')]) {
+                    dir('Frontend') {
+                        sh '''
+                            set +x
+                            mkdir -p .vercel
+                            printf '{"orgId":"%s","projectId":"%s"}' \\
+                                "$VERCEL_ORG_ID" "$VERCEL_PROJECT_ID" > .vercel/project.json
+                            npx --yes "$VERCEL_CLI" deploy \\
+                                --prod --yes \\
+                                --token "$VERCEL_TOKEN"
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Validar Frontend - Vercel') {
+            when {
+                expression { params.PROJECT in ['BOTH', 'FRONTEND'] }
+            }
+            steps {
+                echo "Verificando ${VERCEL_PROD_URL}..."
+                sh '''
+                    for tentativa in $(seq 1 12); do
+                        HTTP_CODE=$(curl --silent --output /dev/null \\
+                            --write-out "%{http_code}" --max-time 30 "$VERCEL_PROD_URL" || true)
+                        echo "Tentativa ${tentativa}/12 - HTTP ${HTTP_CODE}"
+                        if [ "$HTTP_CODE" = "200" ]; then
+                            echo 'Frontend respondendo na Vercel.'
+                            exit 0
+                        fi
+                        sleep 10
+                    done
+                    echo 'Frontend não respondeu HTTP 200 dentro do tempo limite.'
+                    exit 1
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'CD do Rush-B-Market concluído com sucesso.'
+        }
+
+        failure {
+            echo 'CD do Rush-B-Market falhou. Consulte o Console Output.'
+        }
+
+        cleanup {
+            deleteDir()
+        }
+    }
+}
