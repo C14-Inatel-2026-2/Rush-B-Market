@@ -2,6 +2,11 @@ import { render, screen } from "@testing-library/react";
 import Home from "../app/page";
 import { mockItems } from "../data/mockItems";
 import { getSkins } from "../lib/skinsApi";
+import { MarketFiltersProvider } from "../app/_components/MarketFiltersContext";
+
+async function renderHome() {
+  return render(<MarketFiltersProvider>{await Home()}</MarketFiltersProvider>);
+}
 
 // A página busca as skins na API: aqui a API devolve os dados de exemplo
 jest.mock("../lib/skinsApi", () => ({
@@ -30,7 +35,7 @@ describe("Home Page", () => {
       { id: 2, name: "Item 2", price: 200 } as any
     );
     
-    render(await Home());
+    await renderHome();
     
     // Busca todos os componentes renderizados com o test ID do mock
     const cards = screen.getAllByTestId("item-card");
@@ -44,7 +49,7 @@ describe("Home Page", () => {
     // Esvaziamos o array para simular um cenário negativo de dados
     mockItems.length = 0;
     
-    render(await Home());
+    await renderHome();
     
     // queryAllByTestId não quebra o teste se não achar nada (retorna array vazio)
     const cards = screen.queryAllByTestId("item-card");
@@ -57,7 +62,7 @@ describe("Home Page", () => {
   it("deve exibir mensagem de erro e nenhum card quando a API falhar", async () => {
     (getSkins as jest.Mock).mockRejectedValueOnce(new Error("API fora do ar"));
 
-    render(await Home());
+    await renderHome();
 
     expect(screen.getByRole("alert")).toHaveTextContent(/NÃO FOI POSSÍVEL CARREGAR AS SKINS/);
     expect(screen.queryAllByTestId("item-card")).toHaveLength(0);

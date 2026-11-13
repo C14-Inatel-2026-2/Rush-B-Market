@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import Home from "../app/page";
 import { mockItems } from "../data/mockItems";
+import { MarketFiltersProvider } from "../app/_components/MarketFiltersContext";
 
 // A página busca as skins na API: aqui a API devolve os dados de exemplo
 jest.mock("../lib/skinsApi", () => ({
@@ -63,7 +64,7 @@ describe("Grid da página principal - testes com mock", () => {
 
   // TESTE 1: COM MOCK (Positivo)
   it("deve enviar para cada card exatamente os dados do seu item", async () => {
-    render(await Home());
+    render(<MarketFiltersProvider>{await Home()}</MarketFiltersProvider>);
 
     const props = propsRecebidas();
     expect(props).toHaveLength(mockItems.length);
@@ -75,7 +76,7 @@ describe("Grid da página principal - testes com mock", () => {
 
   // TESTE 2: COM MOCK (Positivo)
   it("deve renderizar os cards na mesma ordem dos dados", async () => {
-    render(await Home());
+    render(<MarketFiltersProvider>{await Home()}</MarketFiltersProvider>);
 
     const nomes = screen.getAllByTestId("item-card").map((card) => card.textContent);
     expect(nomes).toEqual(["Karambit | Doppler", "M4A4 | Royal Paladin", "Sport Gloves | Omega"]);
@@ -83,14 +84,14 @@ describe("Grid da página principal - testes com mock", () => {
 
   // TESTE 3: COM MOCK (Positivo)
   it("deve repassar o preço como número, deixando a formatação para o card", async () => {
-    render(await Home());
+    render(<MarketFiltersProvider>{await Home()}</MarketFiltersProvider>);
 
     expect(propsRecebidas()[2].price).toBe(210);
   });
 
   // TESTE 4: COM MOCK (Negativo)
   it("não deve repassar o id do item como propriedade do card", async () => {
-    render(await Home());
+    render(<MarketFiltersProvider>{await Home()}</MarketFiltersProvider>);
 
     propsRecebidas().forEach((props) => {
       expect(props).not.toHaveProperty("id");
@@ -99,7 +100,7 @@ describe("Grid da página principal - testes com mock", () => {
 
   // TESTE 5: COM MOCK (Negativo)
   it("não deve renderizar cards duplicados ao renderizar a página", async () => {
-    render(await Home());
+    render(<MarketFiltersProvider>{await Home()}</MarketFiltersProvider>);
 
     expect(mockItemCard).toHaveBeenCalledTimes(mockItems.length);
     expect(screen.getAllByTestId("item-card")).toHaveLength(mockItems.length);

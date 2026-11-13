@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { MARKET_FILTERS, useMarketFilters } from "./MarketFiltersContext";
 
 /**
  * Header do Rush B Market.
@@ -11,9 +11,6 @@ import { useState } from "react";
  * Componente isolado -- nao depende de nada da area de conteudo.
  */
 
-const FILTERS = ["ALL", "COVERT", "KNIVES", "RIFLES", "PISTOLS"] as const;
-type Filter = (typeof FILTERS)[number];
-
 type Stat = { label: string; value: string; delta?: string };
 
 const STATS: Stat[] = [
@@ -22,8 +19,7 @@ const STATS: Stat[] = [
 ];
 
 export default function Header() {
-  const [activeFilter, setActiveFilter] = useState<Filter>("ALL");
-  const [query, setQuery] = useState("");
+  const { activeFilter, setActiveFilter, query, setQuery } = useMarketFilters();
 
   return (
     <header className="sticky top-0 z-50 flex h-14 select-none items-stretch border-b border-white/10 bg-[#0a0b0d] font-mono text-[#d4d7dd]">
@@ -65,7 +61,7 @@ export default function Header() {
       {/* Direita: filtros + busca */}
       <div className="ml-auto flex items-center gap-1 pr-3">
         <nav aria-label="Filtrar por categoria" className="hidden items-center gap-1 md:flex">
-          {FILTERS.map((filter) => {
+          {MARKET_FILTERS.map((filter) => {
             const isActive = filter === activeFilter;
             return (
               <button
@@ -98,8 +94,8 @@ export default function Header() {
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="SEARCH_SKIN_ID..."
-            aria-label="Buscar skin por ID"
+            placeholder="SEARCH_SKIN..."
+            aria-label="Buscar skin pelo nome"
             className="w-32 bg-transparent text-[11px] tracking-[0.1em] text-[#d4d7dd] outline-none placeholder:text-[#4b5563] lg:w-44"
           />
         </form>
