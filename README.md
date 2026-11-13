@@ -142,7 +142,7 @@ cd Frontend && npm install && npm test
 | J2 – Testes Frontend | `CI-CD/J2-Testes-Frontend.Jenkinsfile` | Roda os testes Jest e publica o relatório |
 | J3 – Cobertura Backend | `CI-CD/J3-Cobertura-Backend.Jenkinsfile` | Gera o relatório de cobertura JaCoCo |
 | J4 – Build Frontend | `CI-CD/J4-Build-Frontend.Jenkinsfile` | Gera e valida o build de produção do Next.js |
-| J5 – Deploy Frontend | `CI-CD/J5-Deploy-Frontend.Jenkinsfile` | Gera a imagem Docker de produção e sobe o container |
+| J5 – Deploy Frontend | `CI-CD/J5-Deploy-Frontend.Jenkinsfile` | Gera a imagem Docker de produção, sobe o container e publica na Vercel |
 
 ## Fluxo de trabalho
 
