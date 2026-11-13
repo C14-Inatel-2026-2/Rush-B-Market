@@ -142,7 +142,7 @@ WITHOUT TESTS: build de produção sem executar os testes.'''
     post {
         always {
             junit(
-                testResults: '**/target/surefire-reports/TEST-*.xml, Frontend/reports/junit.xml',
+                testResults: 'Backend/target/surefire-reports/TEST-*.xml,Frontend/reports/junit.xml',
                 allowEmptyResults: true
             )
 
