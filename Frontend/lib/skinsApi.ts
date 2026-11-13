@@ -15,7 +15,7 @@ export interface SkinResponse {
 
 // URL da API vista pelo servidor do Next (a busca roda no servidor, entao nao
 // depende de CORS no backend). No Docker o compose aponta para o host.
-const API_URL = process.env.API_URL ?? "http://localhost:8080";
+export const API_URL = process.env.API_URL ?? "http://localhost:8080";
 
 export const PLACEHOLDER_IMAGE = "/skin-placeholder.svg";
 
@@ -77,7 +77,7 @@ export function findImageFile(skinName: string, files: string[]): string | null 
 
 const SKINS_DIR = path.join(process.cwd(), "public", "skins");
 
-function imageFor(name: string): string {
+export function imageFor(name: string): string {
   // Lido a cada requisicao para pegar imagens novas sem reiniciar o servidor
   const files = existsSync(SKINS_DIR)
     ? readdirSync(SKINS_DIR).filter((f) => /\.(png|jpe?g|webp)$/i.test(f)).sort()
@@ -91,4 +91,24 @@ export async function getSkins(): Promise<Item[]> {
   if (!res.ok) throw new Error(`GET /skins falhou: ${res.status}`);
   const skins: SkinResponse[] = await res.json();
   return skins.map((skin) => toItem(skin, imageFor(skin.name)));
+}
+
+// Detalhe de uma skin: o Item do card mais os campos crus da API
+export type SkinDetail = Item & Pick<SkinResponse, "rarity" | "weapon" | "playerId">;
+
+export function toSkinDetail(skin: SkinResponse): SkinDetail {
+  return {
+    ...toItem(skin, imageFor(skin.name)),
+    rarity: skin.rarity,
+    weapon: skin.weapon,
+    playerId: skin.playerId,
+  };
+}
+
+// GET /skins/{id}. Devolve null quando a skin nao existe (404).
+export async function getSkin(id: string | number): Promise<SkinDetail | null> {
+  const res = await fetch(`${API_URL}/skins/${encodeURIComponent(id)}`, { cache: "no-store" });
+  if (res.status === 404 || res.status === 400) return null;
+  if (!res.ok) throw new Error(`GET /skins/${id} falhou: ${res.status}`);
+  return toSkinDetail(await res.json());
 }

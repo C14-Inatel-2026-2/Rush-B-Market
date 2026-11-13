@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 /**
@@ -28,9 +29,18 @@ export default function Header() {
     <header className="sticky top-0 z-50 flex h-14 select-none items-stretch border-b border-white/10 bg-[#0a0b0d] font-mono text-[#d4d7dd]">
       {/* Esquerda: logo + indicadores */}
       <div className="flex items-center gap-4 pl-3 pr-4">
-        <div className="flex h-8 w-8 items-center justify-center border border-[#a5811f] bg-[#d4a72c] text-xs font-bold tracking-[0.2em] text-[#0a0b0d]">
+        <Link
+          href="/"
+          aria-label="Mercado"
+          className="flex h-8 w-8 items-center justify-center border border-[#a5811f] bg-[#d4a72c] text-xs font-bold tracking-[0.2em] text-[#0a0b0d]"
+        >
           AX
-        </div>
+        </Link>
+
+        <nav aria-label="Seções" className="flex items-center gap-3 text-[10px] tracking-[0.15em]">
+          <Link href="/" className="text-[#5a6069] hover:text-[#d4d7dd]">MARKET</Link>
+          <Link href="/players" className="text-[#5a6069] hover:text-[#d4d7dd]">PLAYERS</Link>
+        </nav>
 
         <dl className="hidden items-stretch gap-4 sm:flex">
           {STATS.map((stat) => (
