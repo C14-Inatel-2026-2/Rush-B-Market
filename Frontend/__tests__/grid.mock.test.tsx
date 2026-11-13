@@ -1,6 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import Home from "../app/page";
 import { mockItems } from "../data/mockItems";
+
+// A página busca as skins na API: aqui a API devolve os dados de exemplo
+jest.mock("../lib/skinsApi", () => ({
+  getSkins: jest.fn(async () => mockItems),
+}));
 import type { Item } from "../data/mockItems";
 
 // Mock 1: ItemCard substituído para capturar as props que a grade envia para cada card
@@ -57,8 +62,8 @@ describe("Grid da página principal - testes com mock", () => {
   });
 
   // TESTE 1: COM MOCK (Positivo)
-  it("deve enviar para cada card exatamente os dados do seu item", () => {
-    render(<Home />);
+  it("deve enviar para cada card exatamente os dados do seu item", async () => {
+    render(await Home());
 
     const props = propsRecebidas();
     expect(props).toHaveLength(mockItems.length);
@@ -69,23 +74,23 @@ describe("Grid da página principal - testes com mock", () => {
   });
 
   // TESTE 2: COM MOCK (Positivo)
-  it("deve renderizar os cards na mesma ordem dos dados", () => {
-    render(<Home />);
+  it("deve renderizar os cards na mesma ordem dos dados", async () => {
+    render(await Home());
 
     const nomes = screen.getAllByTestId("item-card").map((card) => card.textContent);
     expect(nomes).toEqual(["Karambit | Doppler", "M4A4 | Royal Paladin", "Sport Gloves | Omega"]);
   });
 
   // TESTE 3: COM MOCK (Positivo)
-  it("deve repassar o preço como número, deixando a formatação para o card", () => {
-    render(<Home />);
+  it("deve repassar o preço como número, deixando a formatação para o card", async () => {
+    render(await Home());
 
     expect(propsRecebidas()[2].price).toBe(210);
   });
 
   // TESTE 4: COM MOCK (Negativo)
-  it("não deve repassar o id do item como propriedade do card", () => {
-    render(<Home />);
+  it("não deve repassar o id do item como propriedade do card", async () => {
+    render(await Home());
 
     propsRecebidas().forEach((props) => {
       expect(props).not.toHaveProperty("id");
@@ -93,8 +98,8 @@ describe("Grid da página principal - testes com mock", () => {
   });
 
   // TESTE 5: COM MOCK (Negativo)
-  it("não deve renderizar cards duplicados ao renderizar a página", () => {
-    render(<Home />);
+  it("não deve renderizar cards duplicados ao renderizar a página", async () => {
+    render(await Home());
 
     expect(mockItemCard).toHaveBeenCalledTimes(mockItems.length);
     expect(screen.getAllByTestId("item-card")).toHaveLength(mockItems.length);

@@ -1,0 +1,43 @@
+# syntax=docker/dockerfile:1.7
+#
+# Imagem de DESENVOLVIMENTO do rush-b-market.
+# Objetivo: rodar `next dev` dentro do container com hot reload a partir do
+# codigo montado do host. Nao usar em producao (deps de dev, sem build otimizado).
+
+ARG NODE_VERSION=24-alpine
+
+# ---------------------------------------------------------------- base
+FROM node:${NODE_VERSION} AS base
+# libc6-compat: binarios nativos (SWC/Turbopack) esperam simbolos glibc no Alpine
+RUN apk add --no-cache libc6-compat
+ENV NODE_ENV=development \
+    NEXT_TELEMETRY_DISABLED=1 \
+    PATH=/app/node_modules/.bin:$PATH
+WORKDIR /app
+
+# ---------------------------------------------------------------- deps
+# Estagio separado: so os manifestos entram aqui, entao o `npm ci` so roda de
+# novo quando package.json / package-lock.json mudam (cache de camada).
+FROM base AS deps
+COPY package.json package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --include=dev
+
+# ---------------------------------------------------------------- dev
+FROM base AS dev
+COPY --from=deps --chown=node:node /app/node_modules ./node_modules
+COPY --chown=node:node . .
+# .next precisa existir e pertencer ao usuario `node` antes do volume ser montado
+# em cima: volume nomeado herda dono/permissao do diretorio da imagem.
+RUN mkdir -p /app/.next && chown -R node:node /app
+
+# Sem root: processo de dev roda como usuario sem privilegio
+USER node
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=15s --timeout=5s --start-period=60s --retries=5 \
+  CMD node -e "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+
+# -H 0.0.0.0 para o servidor ser alcancavel fora do container
+CMD ["npm", "run", "dev", "--", "-H", "0.0.0.0", "-p", "3000"]
