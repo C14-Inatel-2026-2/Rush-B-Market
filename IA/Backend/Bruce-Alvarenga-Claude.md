@@ -28,13 +28,13 @@
 - **Resultado:** história com regras de negócio e critérios de aceite em "Dado que / quando / então".
 - **Prompt:** "Com os dados que você já tem do meu projeto Rush B Market de outros chats, me ajuda a criar a história de usuário para o Rush B Market: US-02 — Cadastrar um jogador. Usa isso como base." (com a US-01 colada como modelo)
 
-## Refactoring dos testes do SkinService (PR #67)
+## Refactoring dos testes do SkinService (PR #66)
 
 - **Pedi:** um refactoring para remover a criação de skins repetida nos testes.
 - **Resultado:** método auxiliar `novaSkin` no `SkinServiceQueryTest.java`.
 - **Prompt:** "Me ajuda a fazer os 2 refactorings."
 
-## Refactoring do SkinService (PR #66)
+## Refactoring do SkinService (PR #67)
 
 - **Pedi:** extrair as validações do `addSkinToPlayer` em métodos e abrir o PR sem commitar direto na homolog.
 - **Resultado:** `findPlayerOrThrow`, `validateSkinLimit`, `validateUniqueName` e `validateUniqueWeapon` no `SkinService.java`.
