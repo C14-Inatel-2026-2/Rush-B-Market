@@ -11,7 +11,9 @@ const usePolling = Number.isFinite(pollIntervalMs) && pollIntervalMs > 0;
 const nextConfig: NextConfig = {
   // Gera .next/standalone no build: servidor minimo (server.js) usado pela
   // imagem de producao (Dockerfile) no deploy do J5. Nao afeta o `next dev`.
-  output: "standalone",
+  // Desligado na Vercel (que define VERCEL=1): o builder dela empacota o app
+  // por conta propria e quebra com o output standalone.
+  ...(process.env.VERCEL ? {} : { output: "standalone" as const }),
   ...(usePolling ? { watchOptions: { pollIntervalMs } } : {}),
 };
 
