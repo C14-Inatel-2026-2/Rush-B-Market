@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import type { Item } from "../data/mockItems";
 
@@ -57,11 +57,33 @@ export function toItem(skin: SkinResponse, image: string): Item {
   };
 }
 
-// A API tambem nao tem imagem: usamos /public/skins/<nome sem "|">.png quando
-// existe, senao um placeholder.
+// Quebra o nome em palavras ignorando maiusculas, espacos, "|" e pontuacao:
+// "Karambit | Doppler" e "Karambit Doppler.png" viram ["karambit", "doppler"].
+const words = (s: string) => s.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+
+// A API nao tem imagem: cruzamos o nome da skin com os arquivos de
+// /public/skins. Prioridade: mesmas palavras; senao, arquivo cujas palavras
+// comecam com as da skin (variantes como "Karambit Doppler Blue"). A
+// comparacao e por palavra inteira, entao "AK-47 | Red" nao pega "AK-47
+// Redline". Sem match -> null (o card usa o placeholder).
+export function findImageFile(skinName: string, files: string[]): string | null {
+  const key = words(skinName);
+  const fileWords = (f: string) => words(f.replace(/\.[^.]+$/, ""));
+  const startsWithKey = (w: string[]) => key.every((k, i) => w[i] === k);
+  const exact = files.find((f) => fileWords(f).length === key.length && startsWithKey(fileWords(f)));
+  if (exact) return exact;
+  return files.find((f) => startsWithKey(fileWords(f))) ?? null;
+}
+
+const SKINS_DIR = path.join(process.cwd(), "public", "skins");
+
 function imageFor(name: string): string {
-  const file = `/skins/${name.replace(/\s*\|\s*/, " ")}.png`;
-  return existsSync(path.join(process.cwd(), "public", file)) ? file : PLACEHOLDER_IMAGE;
+  // Lido a cada requisicao para pegar imagens novas sem reiniciar o servidor
+  const files = existsSync(SKINS_DIR)
+    ? readdirSync(SKINS_DIR).filter((f) => /\.(png|jpe?g|webp)$/i.test(f)).sort()
+    : [];
+  const file = findImageFile(name, files);
+  return file ? `/skins/${file}` : PLACEHOLDER_IMAGE;
 }
 
 export async function getSkins(): Promise<Item[]> {
