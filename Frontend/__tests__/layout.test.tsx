@@ -10,8 +10,8 @@ describe("RootLayout", () => {
     // O layout retorna a tag <html>. O filho do <html> é o <body>
     const body = layout.props.children;
     
-    // O body tem dois filhos no seu código: o array tem o <Header /> na posição 0 e o {children} na posição 1
-    const childrenPassado = body.props.children[1];
+    // O provider mantém o Header na posição 0 e o {children} na posição 1
+    const childrenPassado = body.props.children.props.children[1];
     
     // Validamos se a estrutura manteve o conteúdo exatamente como enviamos
     expect(childrenPassado).toEqual(filhoDeTeste);
