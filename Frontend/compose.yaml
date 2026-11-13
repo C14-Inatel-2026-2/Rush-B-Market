@@ -31,6 +31,13 @@ services:
       #   NEXT_WATCH_POLL_INTERVAL_MS=1000 WATCHPACK_POLLING=true docker compose up
       NEXT_WATCH_POLL_INTERVAL_MS: "${NEXT_WATCH_POLL_INTERVAL_MS:-0}"
       WATCHPACK_POLLING: "${WATCHPACK_POLLING:-false}"
+      # API do backend, chamada pelo servidor do Next (nao pelo navegador).
+      # Dentro do container "localhost" e o proprio container, entao apontamos
+      # para a maquina host, onde o backend expoe a porta 8080.
+      API_URL: "${API_URL:-http://host.docker.internal:8080}"
+    extra_hosts:
+      # Linux nao define host.docker.internal sozinho (Docker Desktop define)
+      - "host.docker.internal:host-gateway"
     volumes:
       # Codigo-fonte: o host e a fonte da verdade, o container so le
       - .:/app
