@@ -65,19 +65,16 @@ describe("Grid da página principal - testes com mock", () => {
   it("deve enviar para cada card exatamente os dados do seu item", async () => {
     render(await Home());
 
-    const props = propsRecebidas();
-    expect(props).toHaveLength(mockItems.length);
+    const propsEsperadas = mockItems.map((item) => ({
+      name: item.name,
+      category: item.category,
+      price: item.price,
+      image: item.image,
+      wearLabel: item.wearLabel,
+      floatValue: item.floatValue,
+    }));
 
-    mockItems.forEach((item, indice) => {
-      expect(props[indice]).toEqual({
-        name: item.name,
-        category: item.category,
-        price: item.price,
-        image: item.image,
-        wearLabel: item.wearLabel,
-        floatValue: item.floatValue,
-      });
-    });
+    expect(propsRecebidas()).toEqual(propsEsperadas);
   });
 
   // TESTE 2: COM MOCK (Positivo)
