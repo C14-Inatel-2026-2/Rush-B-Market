@@ -20,7 +20,10 @@ const mockSetBusca = jest.fn();
 function mockarEstado(filtroAtivo: string, busca: string) {
   mockUseState.mockImplementation((valorInicial: unknown) => {
     if (valorInicial === "ALL") return [filtroAtivo, mockSetFiltroAtivo];
-    return [busca, mockSetBusca];
+    if (valorInicial === "") return [busca, mockSetBusca];
+    // O mock vale para qualquer componente renderizado; estados que não são do
+    // Header seguem com o useState real para não receberem o estado da busca.
+    return jest.requireActual("react").useState(valorInicial);
   });
 }
 
