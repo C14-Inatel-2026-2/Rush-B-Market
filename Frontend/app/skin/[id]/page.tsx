@@ -1,14 +1,25 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getSkin } from "../../../lib/skinsApi";
+import { getSkin, type SkinDetail } from "../../../lib/skinsApi";
 
 export const dynamic = "force-dynamic";
 
 export default async function SkinPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!/^\d+$/.test(id)) notFound();
-  const skin = await getSkin(id);
+  let skin: SkinDetail | null;
+  try {
+    skin = await getSkin(id);
+  } catch {
+    return (
+      <main className="flex-1 p-6 font-mono md:p-8">
+        <p role="alert" className="mx-auto max-w-4xl text-[11px] tracking-[0.15em] text-[#d4a72c]">
+          NÃO FOI POSSÍVEL CARREGAR A SKIN. VERIFIQUE SE A API ESTÁ NO AR.
+        </p>
+      </main>
+    );
+  }
   if (!skin) notFound();
 
   const rows: [string, React.ReactNode][] = [
