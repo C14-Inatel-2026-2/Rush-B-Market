@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SkinGrid from "../../_components/SkinGrid";
-import { getPlayer } from "../../../lib/playersApi";
+import { getPlayer, type PlayerWithSkins } from "../../../lib/playersApi";
 import { deletePlayerAction } from "../actions";
 
 export const dynamic = "force-dynamic";
@@ -9,7 +9,18 @@ export const dynamic = "force-dynamic";
 export default async function PlayerPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!/^\d+$/.test(id)) notFound();
-  const player = await getPlayer(id);
+  let player: PlayerWithSkins | null;
+  try {
+    player = await getPlayer(id);
+  } catch {
+    return (
+      <main className="flex-1 p-6 font-mono md:p-8">
+        <p role="alert" className="mx-auto max-w-4xl text-[11px] tracking-[0.15em] text-[#d4a72c]">
+          NÃO FOI POSSÍVEL CARREGAR O PLAYER. VERIFIQUE SE A API ESTÁ NO AR.
+        </p>
+      </main>
+    );
+  }
   if (!player) notFound();
 
   const total = player.skins.reduce((sum, skin) => sum + skin.price, 0);
