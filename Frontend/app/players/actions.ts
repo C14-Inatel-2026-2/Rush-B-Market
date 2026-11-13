@@ -16,7 +16,7 @@ export async function createPlayerAction(
   // A validacao de verdade (e-mail valido, senha >= 6, e-mail unico) e do
   // backend; aqui so devolvemos a mensagem dele para o formulario.
   const result = await createPlayer(email, password);
-  if (!result.ok) return { error: result.error };
+  if ("error" in result) return { error: result.error };
 
   refresh();
   return { created: result.player.email };
