@@ -1,6 +1,12 @@
 # Uso de IA — André Araújo
 
-**Ferramenta:** Claude Code (Claude Opus)
+**Ferramenta:** Claude Code (Claude Opus; o Header foi feito com o Claude Sonnet)
+
+## Header (PR #10)
+
+- **Pedi:** implementar o header a partir do layout gerado por IA no Figma, depois ajustado em algumas rodadas até ficar igual ao mock (logo `AX` dourado, borda em cada filtro, filtro ativo em azul).
+- **Resultado:** `app/_components/Header.tsx`, com o `<Header />` adicionado em `app/layout.tsx` e o boilerplate de `app/page.tsx` trocado por um placeholder.
+- **Prompt:** gerar o header com base na imagem do Figma em anexo e, nos prompts seguintes, ajustar o logo, as bordas dos filtros e o estado selecionado.
 
 ## Testes do Header (PR #39)
 
