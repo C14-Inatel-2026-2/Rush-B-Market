@@ -1,12 +1,21 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import Header from "../app/_components/Header";
+import { MarketFiltersProvider } from "../app/_components/MarketFiltersContext";
 
 const FILTROS = ["ALL", "COVERT", "KNIVES", "RIFLES", "PISTOLS"];
+
+function renderHeader() {
+  return render(
+    <MarketFiltersProvider>
+      <Header />
+    </MarketFiltersProvider>
+  );
+}
 
 describe("Header - testes unitários (sem mock)", () => {
   // TESTE 1: SEM MOCK (Positivo)
   it("deve renderizar o logo e os indicadores de mercado", () => {
-    render(<Header />);
+    renderHeader();
 
     expect(screen.getByText("AX")).toBeInTheDocument();
     expect(screen.getByText("STAKED VALUE")).toBeInTheDocument();
@@ -18,7 +27,7 @@ describe("Header - testes unitários (sem mock)", () => {
 
   // TESTE 2: SEM MOCK (Positivo)
   it("deve renderizar os 5 filtros com ALL ativo por padrão", () => {
-    render(<Header />);
+    renderHeader();
 
     const botoes = screen.getAllByRole("button");
     expect(botoes).toHaveLength(FILTROS.length);
@@ -32,7 +41,7 @@ describe("Header - testes unitários (sem mock)", () => {
 
   // TESTE 3: SEM MOCK (Positivo)
   it("deve ativar o filtro clicado e desativar o anterior", () => {
-    render(<Header />);
+    renderHeader();
 
     fireEvent.click(screen.getByRole("button", { name: "RIFLES" }));
 
@@ -48,9 +57,9 @@ describe("Header - testes unitários (sem mock)", () => {
 
   // TESTE 4: SEM MOCK (Positivo)
   it("deve atualizar o campo de busca conforme o usuário digita", () => {
-    render(<Header />);
+    renderHeader();
 
-    const busca = screen.getByRole("searchbox", { name: "Buscar skin por ID" });
+    const busca = screen.getByRole("searchbox", { name: "Buscar skin pelo nome" });
     expect(busca).toHaveValue("");
 
     fireEvent.change(busca, { target: { value: "AWP" } });
@@ -60,7 +69,7 @@ describe("Header - testes unitários (sem mock)", () => {
 
   // TESTE 5: SEM MOCK (Negativo)
   it("não deve recarregar a página ao enviar o formulário de busca", () => {
-    render(<Header />);
+    renderHeader();
 
     const formulario = screen.getByRole("search");
 
@@ -72,7 +81,7 @@ describe("Header - testes unitários (sem mock)", () => {
 
   // TESTE 6: SEM MOCK (Negativo)
   it("não deve exibir variação percentual para indicadores sem delta", () => {
-    render(<Header />);
+    renderHeader();
 
     // Só o STAKED VALUE possui delta; o LISTINGS INDEXED não pode exibir porcentagem
     expect(screen.getAllByText(/%/)).toHaveLength(1);

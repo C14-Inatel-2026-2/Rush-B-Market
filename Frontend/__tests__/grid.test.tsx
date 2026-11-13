@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import Home from "../app/page";
 import { mockItems } from "../data/mockItems";
+import { MarketFiltersProvider } from "../app/_components/MarketFiltersContext";
 
 // A página busca as skins na API: aqui a API devolve os dados de exemplo
 jest.mock("../lib/skinsApi", () => ({
@@ -9,11 +10,13 @@ jest.mock("../lib/skinsApi", () => ({
 
 // Testes da grade da página principal usando os componentes e dados reais
 async function renderizarGrade() {
-  const { container } = render(await Home());
+  const { container } = render(
+    <MarketFiltersProvider>{await Home()}</MarketFiltersProvider>
+  );
   return container.querySelector(".grid") as HTMLElement;
 }
 
-describe("Grid da página principal - testes unitários (sem mock)", () => {
+describe("Grid da página principal - testes sem mock de componentes (API simulada)", () => {
   // TESTE 1: SEM MOCK (Positivo)
   it("deve renderizar um card para cada item da loja", async () => {
     const grade = await renderizarGrade();
@@ -53,10 +56,13 @@ describe("Grid da página principal - testes unitários (sem mock)", () => {
 
   // TESTE 5: SEM MOCK (Negativo)
   it("não deve possuir itens com id repetido na grade", async () => {
-    const ids = mockItems.map((item) => item.id);
+    await renderizarGrade();
+
+    const hrefs = screen.getAllByRole("link").map((link) => link.getAttribute("href"));
 
     // ids repetidos quebram a key do React e podem duplicar ou sumir cards
-    expect(new Set(ids).size).toBe(ids.length);
+    expect(hrefs).toHaveLength(mockItems.length);
+    expect(new Set(hrefs).size).toBe(hrefs.length);
   });
 
   // TESTE 6: SEM MOCK (Negativo)
