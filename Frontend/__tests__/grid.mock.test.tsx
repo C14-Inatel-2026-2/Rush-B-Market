@@ -1,12 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import Home from "../app/page";
 import { mockItems } from "../data/mockItems";
+import type { Item } from "../data/mockItems";
 
 // A página busca as skins na API: aqui a API devolve os dados de exemplo
 jest.mock("../lib/skinsApi", () => ({
   getSkins: jest.fn(async () => mockItems),
 }));
-import type { Item } from "../data/mockItems";
 
 // Mock 1: ItemCard substituído para capturar as props que a grade envia para cada card
 const mockItemCard = jest.fn();
@@ -65,12 +65,16 @@ describe("Grid da página principal - testes com mock", () => {
   it("deve enviar para cada card exatamente os dados do seu item", async () => {
     render(await Home());
 
-    const props = propsRecebidas();
-    expect(props).toHaveLength(mockItems.length);
+    const propsEsperadas = mockItems.map((item) => ({
+      name: item.name,
+      category: item.category,
+      price: item.price,
+      image: item.image,
+      wearLabel: item.wearLabel,
+      floatValue: item.floatValue,
+    }));
 
-    mockItems.forEach(({ id, ...dadosDoCard }, indice) => {
-      expect(props[indice]).toEqual(dadosDoCard);
-    });
+    expect(propsRecebidas()).toEqual(propsEsperadas);
   });
 
   // TESTE 2: COM MOCK (Positivo)
