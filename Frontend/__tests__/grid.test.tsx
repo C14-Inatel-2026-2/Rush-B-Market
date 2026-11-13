@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import Home from "../app/page";
 import { mockItems } from "../data/mockItems";
+import { MarketFiltersProvider } from "../app/_components/MarketFiltersContext";
 
 // A página busca as skins na API: aqui a API devolve os dados de exemplo
 jest.mock("../lib/skinsApi", () => ({
@@ -9,7 +10,9 @@ jest.mock("../lib/skinsApi", () => ({
 
 // Testes da grade da página principal usando os componentes e dados reais
 async function renderizarGrade() {
-  const { container } = render(await Home());
+  const { container } = render(
+    <MarketFiltersProvider>{await Home()}</MarketFiltersProvider>
+  );
   return container.querySelector(".grid") as HTMLElement;
 }
 

@@ -1,23 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import {
+  MARKET_FILTERS,
+  useMarketFilters,
+  type MarketFilter,
+} from "./MarketFiltersContext";
 
-// Filtros e busca por enquanto só guardam estado local; ainda não filtram a
-// vitrine (pendente na US-05, issue #62).
-const FILTERS = ["ALL", "COVERT", "KNIVES", "RIFLES", "PISTOLS"] as const;
-type Filter = (typeof FILTERS)[number];
+/**
+ * Header do Rush B Market.
+ *
+ * Barra fixa no topo (56px), no estilo "terminal" do mock do Figma:
+ * logo + indicadores a esquerda, filtros de categoria e busca a direita.
+ */
 
 type Stat = { label: string; value: string; delta?: string };
 
-// Valores fixos do protótipo do Figma (RF11 parcial).
 const STATS: Stat[] = [
   { label: "STAKED VALUE", value: "$0.00", delta: "+4.7%" },
   { label: "LISTINGS INDEXED", value: "160" },
 ];
 
-// Classes inteiras de propósito: o Tailwind só gera as classes que encontra
-// escritas por completo no código.
 const STYLES = {
   bar: "sticky top-0 z-50 flex h-14 select-none items-stretch border-b border-white/10 bg-[#0a0b0d] font-mono text-[#d4d7dd]",
   leftGroup: "flex items-center gap-4 pl-3 pr-4",
@@ -73,14 +76,14 @@ function MarketStats() {
 }
 
 type CategoryFiltersProps = {
-  activeFilter: Filter;
-  onSelect: (filter: Filter) => void;
+  activeFilter: MarketFilter;
+  onSelect: (filter: MarketFilter) => void;
 };
 
 function CategoryFilters({ activeFilter, onSelect }: CategoryFiltersProps) {
   return (
     <nav aria-label="Filtrar por categoria" className={STYLES.filterNav}>
-      {FILTERS.map((filter) => {
+      {MARKET_FILTERS.map((filter) => {
         const isActive = filter === activeFilter;
         return (
           <button
@@ -108,20 +111,14 @@ type SearchBoxProps = {
 
 function SearchBox({ query, onQueryChange }: SearchBoxProps) {
   return (
-    <form
-      role="search"
-      onSubmit={(event) => event.preventDefault()}
-      className={STYLES.searchForm}
-    >
-      <span aria-hidden className={STYLES.searchPrompt}>
-        &gt;
-      </span>
+    <form role="search" onSubmit={(event) => event.preventDefault()} className={STYLES.searchForm}>
+      <span aria-hidden className={STYLES.searchPrompt}>&gt;</span>
       <input
         type="search"
         value={query}
         onChange={(event) => onQueryChange(event.target.value)}
-        placeholder="SEARCH_SKIN_ID..."
-        aria-label="Buscar skin por ID"
+        placeholder="SEARCH_SKIN..."
+        aria-label="Buscar skin pelo nome"
         className={STYLES.searchInput}
       />
     </form>
@@ -129,8 +126,7 @@ function SearchBox({ query, onQueryChange }: SearchBoxProps) {
 }
 
 export default function Header() {
-  const [activeFilter, setActiveFilter] = useState<Filter>("ALL");
-  const [query, setQuery] = useState("");
+  const { activeFilter, setActiveFilter, query, setQuery } = useMarketFilters();
 
   return (
     <header className={STYLES.bar}>
