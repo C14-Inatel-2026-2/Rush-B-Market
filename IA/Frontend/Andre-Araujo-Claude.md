@@ -31,3 +31,15 @@
 - **Pedi:** requisitos funcionais e não funcionais para o README e uma user story com critérios de aceite.
 - **Resultado:** README da raiz e a história US-05 — Pesquisar e filtrar skins (KAN-6).
 - **Prompt:** "Me ajuda a documentar o projeto no README e a criar a minha user story no Jira."
+
+## Refactoring do Header (PR #78)
+
+- **Pedi:** um plano de refactoring do Header, passo a passo e didático, sem mudar o comportamento, para eu mesmo executar.
+- **Resultado:** `Header.tsx` dividido em `Logo`, `SectionNav`, `MarketStats`, `CategoryFilters` e `SearchBox`. O estado continua no `Header` e vai para os filhos por props, e as classes Tailwind passam a ter nome no objeto `STYLES`.
+- **Prompt:** "Vamos fazer o refactoring. Quero deixar da forma mais didática possível: me passa o planejamento, passo a passo, do refactoring das coisas que eu fiz."
+
+## Refactoring dos testes do Header e do Grid (PR #79)
+
+- **Pedi:** ajustes nos testes que eu tinha feito e, depois da revisão do Luís, juntar as verificações do teste 1 do `grid.mock.test.tsx` em um único assert.
+- **Resultado:** em `header.mock.test.tsx`, o mock do `useState` só substitui os dois estados do Header, e o resto usa o React de verdade. Em `grid.test.tsx`, o teste de ids repetidos passa a verificar os links renderizados na tela. Em `grid.mock.test.tsx`, os imports foram organizados, a variável sem uso saiu e o teste 1 virou um único `toEqual`.
+- **Prompt:** "O Luís revisou o PR e pediu duas coisas: melhorar a mensagem de falha e trocar o `toHaveLength` e o loop por um único assert."
