@@ -1,0 +1,156 @@
+{
+  "info": {
+    "name": "Rush-B-Market API",
+    "description": "Collection para testar a API do marketplace de skins CS",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Players",
+      "item": [
+        {
+          "name": "Create Player",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"novo.player@rushb.com\",\n  \"password\": \"senha123\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/players",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["players"]
+            }
+          }
+        },
+        {
+          "name": "Get All Players",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/players",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["players"]
+            }
+          }
+        },
+        {
+          "name": "Get Player By ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/players/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["players", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Player",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "http://localhost:8080/players/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["players", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Skins",
+      "item": [
+        {
+          "name": "Add Skin to Player",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"AK-47 | Redline\",\n  \"floatValue\": \"0.15\",\n  \"price\": 45.99,\n  \"rarity\": \"Classified\",\n  \"weapon\": \"AK-47\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/skins/player/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["skins", "player", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get All Skins",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/skins",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["skins"]
+            }
+          }
+        },
+        {
+          "name": "Get Skin By ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/skins/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["skins", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Skin",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "http://localhost:8080/skins/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["skins", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/actuator/health",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["actuator", "health"]
+        }
+      }
+    }
+  ]
+}
