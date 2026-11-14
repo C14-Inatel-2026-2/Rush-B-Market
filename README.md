@@ -149,3 +149,5 @@ cd Frontend && npm install && npm test
 1. Cada tarefa vem de uma história do backlog no Jira.
 2. O desenvolvimento acontece numa branch própria (`feat/…`, `test/…`, `ci/…`, `fix/…`, `docs/…`, `refactor/…`) criada a partir da `homolog`.
 3. A branch é enviada ao GitHub e um **Pull Request para a `homolog`** é aberto e revisado antes do merge.
+
+Testing
