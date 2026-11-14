@@ -170,6 +170,17 @@ aplicada, sua justificativa e o respectivo Pull Request.
 | Código duplicado: montagem completa de `Skin` com builder repetida nos testes do `SkinServiceQueryTest`. | Extrair método (`novaSkin(id, nome, arma)`). | Centralizar a criação de objetos de teste e facilitar sua manutenção. | [#66](https://github.com/C14-Inatel-2026-2/Rush-B-Market/pull/66) |
 | Método longo com comentários explicando o código: `SkinService.addSkinToPlayer`. | Extrair métodos (`findPlayerOrThrow`, `validateSkinLimit`, `validateUniqueName` e `validateUniqueWeapon`). | Melhorar a legibilidade e separar as regras de negócio em métodos com responsabilidades específicas. | [#67](https://github.com/C14-Inatel-2026-2/Rush-B-Market/pull/67) |
 
+### André Araújo — Frontend / DevOps
+
+| Code smell | Refactoring aplicado | Justificativa | Pull Request |
+| --- | --- | --- | --- |
+| Componente grande: o `Header` montava logo, navegação, indicadores, filtros e busca num único bloco de JSX. | Extract Function / Extract Component (`Logo`, `SectionNav`, `MarketStats`, `CategoryFilters` e `SearchBox`). | Cada parte do Header passa a ter um nome e uma responsabilidade, o que facilita ler, testar e alterar uma parte sem mexer nas outras. | [#78](https://github.com/C14-Inatel-2026-2/Rush-B-Market/pull/78) |
+| Literais mágicos: listas longas de classes Tailwind escritas direto no JSX. | Replace Magic Literal (objeto `STYLES` com um nome para cada estilo). | O nome explica para que serve cada conjunto de classes, e um ajuste visual é feito num lugar só. | [#78](https://github.com/C14-Inatel-2026-2/Rush-B-Market/pull/78) |
+| Teste verificando a coisa errada: o teste de ids repetidos do `grid.test` olhava a lista de dados, e não a tela. | Trocar a verificação pelos links renderizados (`href` de cada card). | O teste passa a pegar o bug que importa: cards duplicados ou sumindo na tela. | [#79](https://github.com/C14-Inatel-2026-2/Rush-B-Market/pull/79) |
+| Código morto: variável sem uso no `grid.mock.test`, apontada pelo lint. | Remove Dead Code. | Menos ruído no teste e lint sem avisos. | [#79](https://github.com/C14-Inatel-2026-2/Rush-B-Market/pull/79) |
+
+**Validação:** os 53 testes do Frontend continuaram passando nos dois PRs, sem mudança de comportamento. Depois, no PR #80 (US-05), o estado dos filtros do Header foi para o `MarketFiltersContext`; os subcomponentes e o `STYLES` continuam no código.
+
 ## Fluxo de trabalho
 
 1. Cada tarefa vem de uma história do backlog no Jira.
