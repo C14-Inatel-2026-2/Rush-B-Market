@@ -26,8 +26,7 @@ Monorepo com duas aplicações e os pipelines de CI/CD:
 Rush-B-Market/
 ├── Backend/    # API REST — Java 17 + Spring Boot 3.4 + PostgreSQL 16
 ├── Frontend/   # Aplicação web — Next.js 16 + React 19 + TypeScript + Tailwind CSS 4
-├── CI-CD/      # Jenkinsfiles dos jobs J2 a J5
-├── Jenkinsfile # Build do backend
+├── CI-CD/      # Pipelines unificados do Jenkins (CI e CD)
 └── IA/         # Registro do uso de IA no desenvolvimento
 ```
 
@@ -45,7 +44,7 @@ Cada integrante registra como usou IA no projeto (ferramenta, modelo, para que u
 
 | Integrante | Registro |
 | --- | --- |
-| Bruno Alvarenga | [Backend/Docs/PROMPTS_HISTORY.md](Backend/Docs/PROMPTS_HISTORY.md) |
+| Bruno Alvarenga | [IA/Backend/Bruno-Alvarenga-ChatGPT.md](IA/Backend/Bruno-Alvarenga-ChatGPT.md) |
 | Bruce Alvarenga | [IA/Backend/Bruce-Alvarenga-Claude.md](IA/Backend/Bruce-Alvarenga-Claude.md) |
 | André Araújo | [IA/Frontend/Andre-Araujo-Claude.md](IA/Frontend/Andre-Araujo-Claude.md) |
 | Luis Teles | [IA/Frontend/Luis-Teles-Claude.md](IA/Frontend/Luis-Teles-Claude.md) |
@@ -135,14 +134,19 @@ cd Frontend && npm install && npm test
 
 ## CI/CD (Jenkins)
 
+O projeto utiliza dois pipelines consolidados no Jenkins, responsáveis pela integração contínua (CI) e entrega contínua (CD).
+
 | Job | Arquivo | O que faz |
 | --- | --- | --- |
-| Build Backend | `Jenkinsfile` | Compila e empacota a API |
-| J2 – Testes Backend | `CI-CD/J2-Testes-Backend.Jenkinsfile` | Roda os testes JUnit |
-| J2 – Testes Frontend | `CI-CD/J2-Testes-Frontend.Jenkinsfile` | Roda os testes Jest e publica o relatório |
-| J3 – Cobertura Backend | `CI-CD/J3-Cobertura-Backend.Jenkinsfile` | Gera o relatório de cobertura JaCoCo |
-| J4 – Build Frontend | `CI-CD/J4-Build-Frontend.Jenkinsfile` | Gera e valida o build de produção do Next.js |
-| J5 – Deploy Frontend | `CI-CD/J5-Deploy-Frontend.Jenkinsfile` | Gera a imagem Docker de produção, sobe o container e publica na Vercel |
+| Rush-B-Market-CI | `CI-CD/Jenkinsfile.ci` | Executa os testes automatizados do Backend e Frontend, gera relatórios JUnit e JaCoCo e realiza os builds de produção. |
+| Rush-B-Market-CD | `CI-CD/Jenkinsfile.cd` | Publica o Backend na Render e o Frontend na Vercel, realizando verificações de saúde após os deploys. |
+
+### Fluxo de execução
+
+1. Um push ou Pull Request pode disparar o pipeline de CI pelo webhook do GitHub.
+2. O CI executa testes, cobertura e builds conforme os parâmetros selecionados.
+3. Quando o CI termina com sucesso na branch `main`, utilizando o modo `COMPLETE`, ele aciona o pipeline de CD.
+4. O CD realiza as publicações e verifica se as aplicações estão disponíveis nos ambientes de produção.
 
 
 ## Refactorings
