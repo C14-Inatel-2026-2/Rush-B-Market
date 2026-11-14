@@ -1,4 +1,5 @@
-import { API_URL, toSkinDetail, type SkinDetail, type SkinResponse } from "./skinsApi";
+import { apiError, apiFetch, getJson, getJsonOrNull } from "./apiClient";
+import { toSkinDetail, type SkinDetail, type SkinResponse } from "./skinsApi";
 
 // PlayerResponseDTO / PlayerWithSkinsResponseDTO do backend
 export interface Player {
@@ -12,18 +13,13 @@ export interface PlayerWithSkins extends Player {
 }
 
 export async function getPlayers(): Promise<Player[]> {
-  const res = await fetch(`${API_URL}/players`, { cache: "no-store" });
-  if (!res.ok) throw new Error(`GET /players falhou: ${res.status}`);
-  return res.json();
+  return getJson<Player[]>("/players");
 }
 
 // GET /players/{id}. Devolve null quando o player nao existe (404).
 export async function getPlayer(id: string | number): Promise<PlayerWithSkins | null> {
-  const res = await fetch(`${API_URL}/players/${encodeURIComponent(id)}`, { cache: "no-store" });
-  if (res.status === 404 || res.status === 400) return null;
-  if (!res.ok) throw new Error(`GET /players/${id} falhou: ${res.status}`);
-  const player: Player & { skins: SkinResponse[] } = await res.json();
-  return { ...player, skins: player.skins.map(toSkinDetail) };
+  const player = await getJsonOrNull<Player & { skins: SkinResponse[] }>(`/players/${encodeURIComponent(id)}`);
+  return player && { ...player, skins: player.skins.map(toSkinDetail) };
 }
 
 // Le a mensagem de erro do backend: ErrorResponse ({ message }) ou erro de
@@ -43,11 +39,10 @@ export type CreatePlayerResult = { ok: true; player: Player } | { ok: false; err
 
 // POST /players
 export async function createPlayer(email: string, password: string): Promise<CreatePlayerResult> {
-  const res = await fetch(`${API_URL}/players`, {
+  const res = await apiFetch("/players", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
-    cache: "no-store",
   });
   const body = await res.json().catch(() => null);
   if (!res.ok) return { ok: false, error: errorMessageFrom(body, res.status) };
@@ -56,9 +51,7 @@ export async function createPlayer(email: string, password: string): Promise<Cre
 
 // DELETE /players/{id}
 export async function deletePlayer(id: string | number): Promise<void> {
-  const res = await fetch(`${API_URL}/players/${encodeURIComponent(id)}`, {
-    method: "DELETE",
-    cache: "no-store",
-  });
-  if (!res.ok && res.status !== 404) throw new Error(`DELETE /players/${id} falhou: ${res.status}`);
+  const path = `/players/${encodeURIComponent(id)}`;
+  const res = await apiFetch(path, { method: "DELETE" });
+  if (!res.ok && res.status !== 404) throw apiError("DELETE", path, res.status);
 }

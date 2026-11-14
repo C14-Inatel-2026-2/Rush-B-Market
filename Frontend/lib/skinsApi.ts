@@ -1,6 +1,7 @@
 import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import type { Item } from "../data/mockItems";
+import { getJson, getJsonOrNull } from "./apiClient";
 
 // Formato devolvido por GET /skins (SkinResponseDTO do backend)
 export interface SkinResponse {
@@ -12,10 +13,6 @@ export interface SkinResponse {
   weapon: string;
   playerId: number | null;
 }
-
-// URL da API vista pelo servidor do Next (a busca roda no servidor, entao nao
-// depende de CORS no backend). No Docker o compose aponta para o host.
-export const API_URL = process.env.API_URL ?? "http://localhost:8080";
 
 export const PLACEHOLDER_IMAGE = "/skin-placeholder.svg";
 
@@ -87,9 +84,7 @@ export function imageFor(name: string): string {
 }
 
 export async function getSkins(): Promise<Item[]> {
-  const res = await fetch(`${API_URL}/skins`, { cache: "no-store" });
-  if (!res.ok) throw new Error(`GET /skins falhou: ${res.status}`);
-  const skins: SkinResponse[] = await res.json();
+  const skins = await getJson<SkinResponse[]>("/skins");
   return skins.map((skin) => toItem(skin, imageFor(skin.name)));
 }
 
@@ -107,8 +102,6 @@ export function toSkinDetail(skin: SkinResponse): SkinDetail {
 
 // GET /skins/{id}. Devolve null quando a skin nao existe (404).
 export async function getSkin(id: string | number): Promise<SkinDetail | null> {
-  const res = await fetch(`${API_URL}/skins/${encodeURIComponent(id)}`, { cache: "no-store" });
-  if (res.status === 404 || res.status === 400) return null;
-  if (!res.ok) throw new Error(`GET /skins/${id} falhou: ${res.status}`);
-  return toSkinDetail(await res.json());
+  const skin = await getJsonOrNull<SkinResponse>(`/skins/${encodeURIComponent(id)}`);
+  return skin && toSkinDetail(skin);
 }
