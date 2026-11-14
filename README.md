@@ -176,4 +176,3 @@ aplicada, sua justificativa e o respectivo Pull Request.
 2. O desenvolvimento acontece numa branch própria (`feat/…`, `test/…`, `ci/…`, `fix/…`, `docs/…`, `refactor/…`) criada a partir da `homolog`.
 3. A branch é enviada ao GitHub e um **Pull Request para a `homolog`** é aberto e revisado antes do merge.
 
-Testing
