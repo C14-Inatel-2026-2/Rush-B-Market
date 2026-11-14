@@ -26,7 +26,9 @@ Monorepo com duas aplicações e os pipelines de CI/CD:
 Rush-B-Market/
 ├── Backend/    # API REST — Java 17 + Spring Boot 3.4 + PostgreSQL 16
 ├── Frontend/   # Aplicação web — Next.js 16 + React 19 + TypeScript + Tailwind CSS 4
-├── CI-CD/      # Pipelines unificados do Jenkins (CI e CD)
+├── CI-CD/
+│   ├── Jenkinsfile.ci  # Integração contínua: testes, cobertura e builds
+│   └── Jenkinsfile.cd  # Entrega contínua: deploy e validações
 └── IA/         # Registro do uso de IA no desenvolvimento
 ```
 
@@ -148,7 +150,6 @@ O projeto utiliza dois pipelines consolidados no Jenkins, responsáveis pela int
 3. Quando o CI termina com sucesso na branch `main`, utilizando o modo `COMPLETE`, ele aciona o pipeline de CD.
 4. O CD realiza as publicações e verifica se as aplicações estão disponíveis nos ambientes de produção.
 
-
 ## Refactorings
 
 As refatorações realizadas no projeto têm como objetivo melhorar a estrutura interna,
@@ -174,9 +175,28 @@ aplicada, sua justificativa e o respectivo Pull Request.
 | Código duplicado: montagem completa de `Skin` com builder repetida nos testes do `SkinServiceQueryTest`. | Extrair método (`novaSkin(id, nome, arma)`). | Centralizar a criação de objetos de teste e facilitar sua manutenção. | [#66](https://github.com/C14-Inatel-2026-2/Rush-B-Market/pull/66) |
 | Método longo com comentários explicando o código: `SkinService.addSkinToPlayer`. | Extrair métodos (`findPlayerOrThrow`, `validateSkinLimit`, `validateUniqueName` e `validateUniqueWeapon`). | Melhorar a legibilidade e separar as regras de negócio em métodos com responsabilidades específicas. | [#67](https://github.com/C14-Inatel-2026-2/Rush-B-Market/pull/67) |
 
+### André Araújo — Frontend / DevOps
+
+| Code smell | Refactoring aplicado | Justificativa | Pull Request |
+| --- | --- | --- | --- |
+| Componente grande: o `Header` montava logo, navegação, indicadores, filtros e busca num único bloco de JSX. | Extract Function / Extract Component (`Logo`, `SectionNav`, `MarketStats`, `CategoryFilters` e `SearchBox`). | Cada parte do Header passa a ter um nome e uma responsabilidade, o que facilita ler, testar e alterar uma parte sem mexer nas outras. | [#78](https://github.com/C14-Inatel-2026-2/Rush-B-Market/pull/78) |
+| Literais mágicos: listas longas de classes Tailwind escritas direto no JSX. | Replace Magic Literal (objeto `STYLES` com um nome para cada estilo). | O nome explica para que serve cada conjunto de classes, e um ajuste visual é feito num lugar só. | [#78](https://github.com/C14-Inatel-2026-2/Rush-B-Market/pull/78) |
+| Teste verificando a coisa errada: o teste de ids repetidos do `grid.test` olhava a lista de dados, e não a tela. | Trocar a verificação pelos links renderizados (`href` de cada card). | O teste passa a pegar o bug que importa: cards duplicados ou sumindo na tela. | [#79](https://github.com/C14-Inatel-2026-2/Rush-B-Market/pull/79) |
+| Código morto: variável sem uso no `grid.mock.test`, apontada pelo lint. | Remove Dead Code. | Menos ruído no teste e lint sem avisos. | [#79](https://github.com/C14-Inatel-2026-2/Rush-B-Market/pull/79) |
+
+**Validação:** os 53 testes do Frontend continuaram passando nos dois PRs, sem mudança de comportamento. Depois, no PR #80 (US-05), o estado dos filtros do Header foi para o `MarketFiltersContext`; os subcomponentes e o `STYLES` continuam no código.
+
+### Gabriel Pivoto — Frontend / QA
+
+| Code smell | Refactoring aplicado | Justificativa | Pull Request |
+| --- | --- | --- | --- |
+| Regra de busca e categoria misturada à renderização de `SkinGrid`. | Extract Function (`filterSkins`) em módulo próprio. | Separar a regra que seleciona as skins da montagem visual do grid, mantendo os mesmos critérios e resultados. | [#101](https://github.com/C14-Inatel-2026-2/Rush-B-Market/pull/101) |
+| Casts `as any` e `as jest.Mock` nos testes da home, contornando os tipos do item e do mock da API. | Extract Test Data Builder (`createMockItem`) e mock tipado (`jest.mocked`). | Manter os itens de teste compatíveis com o tipo `Item` e remover casts inseguros sem alterar os cenários. | [#102](https://github.com/C14-Inatel-2026-2/Rush-B-Market/pull/102) |
+
+**Validação:** 15 suítes e 79 testes passaram; lint sem erros; build de produção concluído com sucesso após as duas refatorações.
+
 ## Fluxo de trabalho
 
 1. Cada tarefa vem de uma história do backlog no Jira.
 2. O desenvolvimento acontece numa branch própria (`feat/…`, `test/…`, `ci/…`, `fix/…`, `docs/…`, `refactor/…`) criada a partir da `homolog`.
 3. A branch é enviada ao GitHub e um **Pull Request para a `homolog`** é aberto e revisado antes do merge.
-
