@@ -49,7 +49,7 @@ Cada integrante registra como usou IA no projeto (ferramenta, modelo, para que u
 | Bruce Alvarenga | [IA/Backend/Bruce-Alvarenga-Claude.md](IA/Backend/Bruce-Alvarenga-Claude.md) |
 | André Araújo | [IA/Frontend/Andre-Araujo-Claude.md](IA/Frontend/Andre-Araujo-Claude.md) |
 | Luis Teles | [IA/Frontend/Luis-Teles-Claude.md](IA/Frontend/Luis-Teles-Claude.md) |
-| Gabriel Pivoto | [IA/Frontend/Gabriel-Pivoto-Codex.md](IA/Frontend/Gabriel-Pivoto-Codex.md) |
+| Demais integrantes | Pasta [IA/](IA/) |
 
 ## Requisitos funcionais
 
@@ -144,9 +144,19 @@ cd Frontend && npm install && npm test
 | J4 – Build Frontend | `CI-CD/J4-Build-Frontend.Jenkinsfile` | Gera e valida o build de produção do Next.js |
 | J5 – Deploy Frontend | `CI-CD/J5-Deploy-Frontend.Jenkinsfile` | Gera a imagem Docker de produção, sobe o container e publica na Vercel |
 
+## Refactorings
+
+Cada integrante aplicou pelo menos 2 refactorings, com testes e pipeline verdes antes e depois.
+
+| Integrante | Code smell | Refactoring aplicado | Por quê | PR |
+| --- | --- | --- | --- | --- |
+| Bruce Alvarenga | Código duplicado: a montagem completa de `Skin` com builder repetida nos testes do `SkinServiceQueryTest` | Extrair método: auxiliar `novaSkin(id, nome, arma)` | Uma mudança na entidade `Skin` passa a ser ajustada num lugar só, e os testes ficam focados no que conferem (id e nome) | [#66](https://github.com/C14-Inatel-2026-2/Rush-B-Market/pull/66) |
+| Bruce Alvarenga | Método longo com comentários explicando o código: `SkinService.addSkinToPlayer` (`// Regra 1, 2, 3`) | Extrair método: `findPlayerOrThrow`, `validateSkinLimit`, `validateUniqueName` e `validateUniqueWeapon` | O método passa a se ler como uma lista de regras, e os nomes substituem os comentários, que podiam ficar desatualizados. Mesmas exceções, mensagens e ordem: o comportamento não muda | [#67](https://github.com/C14-Inatel-2026-2/Rush-B-Market/pull/67) |
+
 ## Fluxo de trabalho
 
 1. Cada tarefa vem de uma história do backlog no Jira.
 2. O desenvolvimento acontece numa branch própria (`feat/…`, `test/…`, `ci/…`, `fix/…`, `docs/…`, `refactor/…`) criada a partir da `homolog`.
 3. A branch é enviada ao GitHub e um **Pull Request para a `homolog`** é aberto e revisado antes do merge.
+
 Testing
