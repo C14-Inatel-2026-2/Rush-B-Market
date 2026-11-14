@@ -158,18 +158,17 @@ aplicada, sua justificativa e o respectivo Pull Request.
 
 | Code smell | Refactoring aplicado | Justificativa | Pull Request |
 | --- | --- | --- | --- |
-| Código duplicado em buscas de skins | A definir — Extract Method | Centralizar a busca por ID e o tratamento de SkinNotFoundException, evitando repetição. | Pendente |
-| Código duplicado em buscas de players | A definir — Extract Method | Centralizar a busca por ID e o tratamento de PlayerNotFoundException, evitando repetição. | Pendente |
+| Código duplicado nas buscas de skins (`getSkinById` e `deleteSkin`) | Extract Method (`findSkinOrThrow`) | Centralizar a busca por ID e o tratamento de `SkinNotFoundException`, eliminando a duplicação sem alterar o comportamento. | [#95](https://github.com/C14-Inatel-2026-2/Rush-B-Market/pull/95) |
+| Código duplicado nas buscas de players (`getPlayerById` e `deletePlayer`) | Extract Method (`findPlayerOrThrow`) | Centralizar a busca por ID e o tratamento de `PlayerNotFoundException`, eliminando a duplicação sem alterar o comportamento. | [#95](https://github.com/C14-Inatel-2026-2/Rush-B-Market/pull/95) |
 
+**Validação:** 23 testes executados no Backend, sem falhas ou erros. Build concluído com sucesso e relatório JaCoCo gerado.
 
-## Refactorings
+### Bruce Alvarenga — Backend / QA
 
-Cada integrante aplicou pelo menos 2 refactorings, com testes e pipeline verdes antes e depois.
-
-| Integrante | Code smell | Refactoring aplicado | Por quê | PR |
-| --- | --- | --- | --- | --- |
-| Bruce Alvarenga | Código duplicado: a montagem completa de `Skin` com builder repetida nos testes do `SkinServiceQueryTest` | Extrair método: auxiliar `novaSkin(id, nome, arma)` | Uma mudança na entidade `Skin` passa a ser ajustada num lugar só, e os testes ficam focados no que conferem (id e nome) | [#66](https://github.com/C14-Inatel-2026-2/Rush-B-Market/pull/66) |
-| Bruce Alvarenga | Método longo com comentários explicando o código: `SkinService.addSkinToPlayer` (`// Regra 1, 2, 3`) | Extrair método: `findPlayerOrThrow`, `validateSkinLimit`, `validateUniqueName` e `validateUniqueWeapon` | O método passa a se ler como uma lista de regras, e os nomes substituem os comentários, que podiam ficar desatualizados. Mesmas exceções, mensagens e ordem: o comportamento não muda | [#67](https://github.com/C14-Inatel-2026-2/Rush-B-Market/pull/67) |
+| Code smell | Refactoring aplicado | Por quê | Pull Request |
+| --- | --- | --- | --- |
+| Código duplicado: montagem completa de `Skin` com builder repetida nos testes do `SkinServiceQueryTest`. | Extrair método (`novaSkin(id, nome, arma)`). | Centralizar a criação de objetos de teste e facilitar sua manutenção. | [#66](https://github.com/C14-Inatel-2026-2/Rush-B-Market/pull/66) |
+| Método longo com comentários explicando o código: `SkinService.addSkinToPlayer`. | Extrair métodos (`findPlayerOrThrow`, `validateSkinLimit`, `validateUniqueName` e `validateUniqueWeapon`). | Melhorar a legibilidade e separar as regras de negócio em métodos com responsabilidades específicas. | [#67](https://github.com/C14-Inatel-2026-2/Rush-B-Market/pull/67) |
 
 ## Fluxo de trabalho
 
