@@ -1,0 +1,203 @@
+pipeline {
+    agent any
+
+    tools {
+        jdk 'JDK17'
+    }
+
+    parameters {
+        choice(
+            name: 'PROJECT',
+            choices: ['BOTH', 'BACKEND', 'FRONTEND'],
+            description: '''Selecione quais partes do Rush-B-Market serão validadas:
+BOTH: Backend e Frontend.
+BACKEND: somente Backend.
+FRONTEND: somente Frontend.'''
+        )
+        choice(
+            name: 'EXECUTION_MODE',
+            choices: ['COMPLETE', 'ONLY TESTS', 'WITHOUT TESTS'],
+            description: '''Selecione como o CI deve executar:
+COMPLETE: testes e build de produção (inclui JaCoCo no Backend).
+ONLY TESTS: somente testes automatizados (e cobertura JaCoCo no Backend).
+WITHOUT TESTS: build de produção sem executar os testes.'''
+        )
+    }
+
+    options {
+        timestamps()
+        timeout(time: 45, unit: 'MINUTES')
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '15'))
+    }
+
+    stages {
+        stage('Checkout e validação inicial') {
+            steps {
+                checkout scm
+                sh '''
+                    echo "Projeto selecionado: ${PROJECT}"
+                    echo "Modo de execução: ${EXECUTION_MODE}"
+                    test -d Backend
+                    test -d Frontend
+                '''
+            }
+        }
+
+        stage('Backend - Testes') {
+            when {
+                expression {
+                    params.PROJECT in ['BOTH', 'BACKEND'] &&
+                    params.EXECUTION_MODE in ['COMPLETE', 'ONLY TESTS']
+                }
+            }
+            steps {
+                echo 'Executando testes do Backend com Java 17 e Maven Wrapper...'
+                dir('Backend') {
+                    sh '''
+                        chmod +x ./mvnw
+                        java -version
+                        ./mvnw -B clean test
+                    '''
+                }
+            }
+        }
+
+        stage('Backend - Build de produção') {
+            when {
+                expression {
+                    params.PROJECT in ['BOTH', 'BACKEND'] &&
+                    params.EXECUTION_MODE in ['COMPLETE', 'WITHOUT TESTS']
+                }
+            }
+            steps {
+                echo 'Gerando o pacote do Backend...'
+                dir('Backend') {
+                    sh '''
+                        chmod +x ./mvnw
+                        if [ "$EXECUTION_MODE" = "COMPLETE" ]; then
+                            ./mvnw -B package -DskipTests
+                        else
+                            ./mvnw -B clean package -DskipTests
+                        fi
+                        test -n "$(find target -maxdepth 1 -type f -name '*.jar' ! -name '*.original' -print -quit)"
+                    '''
+                }
+            }
+        }
+
+        stage('Frontend - Instalar dependências') {
+            tools { nodejs 'NodeJS-24' }
+            when {
+                expression { params.PROJECT in ['BOTH', 'FRONTEND'] }
+            }
+            steps {
+                echo 'Instalando dependências do Frontend com npm ci...'
+                dir('Frontend') {
+                    sh '''
+                        node --version
+                        npm --version
+                        npm ci
+                    '''
+                }
+            }
+        }
+
+        stage('Frontend - Testes') {
+            tools { nodejs 'NodeJS-24' }
+            when {
+                expression {
+                    params.PROJECT in ['BOTH', 'FRONTEND'] &&
+                    params.EXECUTION_MODE in ['COMPLETE', 'ONLY TESTS']
+                }
+            }
+            steps {
+                echo 'Executando testes automatizados do Frontend...'
+                dir('Frontend') {
+                    sh 'npm run test:ci'
+                }
+            }
+        }
+
+        stage('Frontend - Build de produção') {
+            tools { nodejs 'NodeJS-24' }
+            when {
+                expression {
+                    params.PROJECT in ['BOTH', 'FRONTEND'] &&
+                    params.EXECUTION_MODE in ['COMPLETE', 'WITHOUT TESTS']
+                }
+            }
+            steps {
+                echo 'Gerando e validando o build de produção do Next.js...'
+                dir('Frontend') {
+                    sh '''
+                        npm run build
+                        test -d .next
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            junit(
+                testResults: 'Backend/target/surefire-reports/TEST-*.xml,Frontend/reports/junit.xml',
+                allowEmptyResults: true
+            )
+
+            script {
+                if (fileExists('Backend/target/site/jacoco/jacoco.xml')) {
+                    recordCoverage(
+                        tools: [[parser: 'JACOCO', pattern: 'Backend/target/site/jacoco/jacoco.xml']],
+                        sourceDirectories: [[path: 'Backend/src/main/java']]
+                    )
+                } else {
+                    echo 'Relatório JaCoCo não encontrado nesta execução (Backend pode não ter sido selecionado ou os testes foram ignorados).'
+                }
+            }
+
+            archiveArtifacts(
+                artifacts: 'Backend/target/site/jacoco/**, Backend/target/*.jar, Frontend/reports/**',
+                allowEmptyArchive: true
+            )
+        }
+
+        success {
+                    echo 'CI do Rush-B-Market concluído com sucesso.'
+
+                    script {
+                        if (env.GIT_BRANCH == 'origin/main' || env.GIT_BRANCH == 'main') {
+
+                            if (params.EXECUTION_MODE == 'COMPLETE') {
+                                echo 'CI aprovado na main. Iniciando CD...'
+
+                                build job: 'Rush-B-Market-CD',
+                                    wait: false,
+                                    parameters: [
+                                        string(name: 'PROJECT', value: params.PROJECT),
+                                        string(
+                                            name: 'RENDER_HEALTH_URL',
+                                            value: 'https://rush-b-market.onrender.com/actuator/health'
+                                        )
+                                    ]
+
+                            } else {
+                                echo 'CD não executado: o modo selecionado não foi COMPLETE.'
+                            }
+
+                        } else {
+                            echo 'CD não executado: a execução não pertence à branch main.'
+                        }
+                    }
+                }
+
+        failure {
+            echo 'CI do Rush-B-Market falhou. Consulte o Console Output e os relatórios de testes.'
+        }
+
+        cleanup {
+            deleteDir()
+        }
+    }
+}

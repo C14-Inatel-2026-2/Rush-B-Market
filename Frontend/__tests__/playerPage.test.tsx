@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import PlayerPage from "../app/players/[id]/page";
+import { MarketFiltersProvider } from "../app/_components/MarketFiltersContext";
 import { getPlayer, type PlayerWithSkins } from "../lib/playersApi";
 
 jest.mock("../lib/playersApi", () => ({ getPlayer: jest.fn() }));
@@ -33,7 +34,7 @@ const player: PlayerWithSkins = {
 
 async function renderPlayerPage() {
   const page = await PlayerPage({ params: Promise.resolve({ id: "12" }) });
-  return render(page);
+  return render(<MarketFiltersProvider>{page}</MarketFiltersProvider>);
 }
 
 describe("Página de detalhe do player", () => {
