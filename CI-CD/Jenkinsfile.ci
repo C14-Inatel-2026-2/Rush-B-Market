@@ -164,8 +164,33 @@ WITHOUT TESTS: build de produção sem executar os testes.'''
         }
 
         success {
-            echo 'CI do Rush-B-Market concluído com sucesso. Nenhum deploy foi executado.'
-        }
+                    echo 'CI do Rush-B-Market concluído com sucesso.'
+
+                    script {
+                        if (env.GIT_BRANCH == 'origin/main' || env.GIT_BRANCH == 'main') {
+
+                            if (params.EXECUTION_MODE == 'COMPLETE') {
+                                echo 'CI aprovado na main. Iniciando CD...'
+
+                                build job: 'Rush-B-Market-CD',
+                                    wait: false,
+                                    parameters: [
+                                        string(name: 'PROJECT', value: params.PROJECT),
+                                        string(
+                                            name: 'RENDER_HEALTH_URL',
+                                            value: 'https://rush-b-market.onrender.com/actuator/health'
+                                        )
+                                    ]
+
+                            } else {
+                                echo 'CD não executado: o modo selecionado não foi COMPLETE.'
+                            }
+
+                        } else {
+                            echo 'CD não executado: a execução não pertence à branch main.'
+                        }
+                    }
+                }
 
         failure {
             echo 'CI do Rush-B-Market falhou. Consulte o Console Output e os relatórios de testes.'
