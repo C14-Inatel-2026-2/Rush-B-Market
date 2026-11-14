@@ -27,14 +27,25 @@
 
 - **Pedi:** ligar a vitrine ao `GET /skins` do backend (RF14) e criar a página de detalhe da skin e as telas de players.
 - **Resultado:** `lib/skinsApi.ts`, `lib/playersApi.ts`, páginas de detalhe e de players, imagens das 15 skins do seed e os testes `skinsApi.test.ts`, `playersApi.test.ts` e `skinGrid.test.tsx`.
-- **Prompt (resumido):** pedi para integrar o frontend com a API usando os endpoints que já existem no backend, com testes.
+- **Prompt:** "leave the images in the front end just cross the names from the api with the image names and use the correct image on the correct card"
+- **Aceito:** a função `findImageFile` em `lib/skinsApi.ts`, que cruza o nome da skin da API com os arquivos de `public/skins`, e as imagens continuaram no frontend.
 - **Ajuste:** a busca da imagem pelo nome da skin pegava a imagem de outra skin com o mesmo prefixo; pedi a correção e um teste para esse caso.
 
 ## Conflito da homolog com a main (PRs #72 e #73)
 
 - **Pedi:** entender por que o PR #71 estava com conflito e resolver.
 - **Resultado:** o revert do PR #37 tinha apagado arquivos da `main`; a branch `merge/homolog-into-main` restaurou os arquivos (PR #73) e o PR #72 corrigiu o erro de TypeScript que quebrava o build.
-- **Prompt (resumido):** pedi para abrir um PR para a homolog com a correção e outro para resolver o conflito do PR #71, sem mexer direto na main.
+- **Prompt:** "can you check the conflict at the pr #71 can you also check if the features will work in the main branch will work onse the merge to main is done"
+- **Aceito:** o diagnóstico do revert do PR #37 e a resolução por uma branch separada (`merge/homolog-into-main`), sem mexer direto na main.
+- **Ajuste:** depois de aceitar o PR para a homolog o conflito continuou no #71 ("aceitei o pr para homolog porem o conflito ainda aparece em #71"), e foi preciso uma segunda rodada.
+
+## Refactors do frontend (PRs #96 e #97)
+
+- **Pedi:** dois refactors simples em código e testes que eu escrevi.
+- **Resultado:** `lib/apiClient.ts` centralizando as chamadas HTTP de `skinsApi.ts` e `playersApi.ts` (#96) e os testes de `skinsApi.test.ts` e `playersApi.test.ts` reorganizados com `it.each` (#97).
+- **Prompt:** "preciso fazer dois refacts nesse projeto procure nos meus prs os dois melhores resultados de preferecia apenas codifo que eu mechi e testes faca isso e faca os rects"
+- **Aceito:** os dois refactors como a IA propôs, sem mudar o comportamento (os 71 testes existentes passaram sem alteração).
+- **Descartado:** um arquivo de teste extra (`apiClient.test.ts`) que a IA criou; pedi para manter simples ("por favor mantenha os dois refact simples" / "e apenas 2").
 
 ## Estudo dos testes
 
