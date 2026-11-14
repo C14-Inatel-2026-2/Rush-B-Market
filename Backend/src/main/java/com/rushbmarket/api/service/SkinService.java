@@ -48,16 +48,14 @@ public class SkinService {
 
     @Transactional(readOnly = true)
     public SkinResponseDTO getSkinById(Long id) {
-        Skin skin = skinRepository.findById(id)
-                .orElseThrow(() -> new SkinNotFoundException("Skin with ID " + id + " not found"));
+        Skin skin = findSkinOrThrow(id);
 
         return SkinMapper.toResponseDTO(skin);
     }
 
     @Transactional
     public void deleteSkin(Long id) {
-        Skin skin = skinRepository.findById(id)
-                .orElseThrow(() -> new SkinNotFoundException("Skin with ID " + id + " not found"));
+        Skin skin = findSkinOrThrow(id);
 
         skinRepository.delete(skin);
     }
@@ -73,6 +71,13 @@ public class SkinService {
                     String.format("Player already has maximum of %d skins", MAX_SKINS_PER_PLAYER)
             );
         }
+    }
+
+    private Skin findSkinOrThrow(Long id) {
+    return skinRepository.findById(id)
+            .orElseThrow(() -> new SkinNotFoundException(
+                    "Skin with ID " + id + " not found"
+            ));
     }
 
     private void validateUniqueName(Player player, String name) {

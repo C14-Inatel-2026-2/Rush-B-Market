@@ -21,6 +21,13 @@ public class PlayerService {
 
     private final PlayerRepository playerRepository;
 
+    private Player findPlayerOrThrow(Long id) {
+        return playerRepository.findById(id)
+                .orElseThrow(() -> new PlayerNotFoundException(
+                        "Player with ID " + id + " not found"
+                ));
+    }
+
     @Transactional
     public PlayerResponseDTO createPlayer(CreatePlayerRequestDTO request) {
         if (playerRepository.existsByEmail(request.getEmail())) {
@@ -35,8 +42,7 @@ public class PlayerService {
 
     @Transactional(readOnly = true)
     public PlayerWithSkinsResponseDTO getPlayerById(Long id) {
-        Player player = playerRepository.findById(id)
-                .orElseThrow(() -> new PlayerNotFoundException("Player with ID " + id + " not found"));
+        Player player = findPlayerOrThrow(id);
 
         return PlayerMapper.toWithSkinsResponseDTO(player);
     }
@@ -50,8 +56,7 @@ public class PlayerService {
 
     @Transactional
     public void deletePlayer(Long id) {
-        Player player = playerRepository.findById(id)
-                .orElseThrow(() -> new PlayerNotFoundException("Player with ID " + id + " not found"));
+        Player player = findPlayerOrThrow(id);
 
         playerRepository.delete(player);
     }
