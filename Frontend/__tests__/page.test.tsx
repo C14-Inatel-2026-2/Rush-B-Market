@@ -1,8 +1,22 @@
 import { render, screen } from "@testing-library/react";
 import Home from "../app/page";
-import { mockItems } from "../data/mockItems";
+import { mockItems, type Item } from "../data/mockItems";
 import { getSkins } from "../lib/skinsApi";
 import { MarketFiltersProvider } from "../app/_components/MarketFiltersContext";
+
+const mockGetSkins = jest.mocked(getSkins);
+
+function createMockItem(id: number, name: string, price: number): Item {
+  return {
+    id,
+    name,
+    category: "COVERT RIFLES",
+    price,
+    image: `/skins/item-${id}.png`,
+    wearLabel: "FN",
+    floatValue: "0.01",
+  };
+}
 
 async function renderHome() {
   return render(<MarketFiltersProvider>{await Home()}</MarketFiltersProvider>);
@@ -30,10 +44,7 @@ describe("Home Page", () => {
   // TESTE 3: COM MOCK (Positivo)
   it("deve renderizar a grade de itens corretamente quando mockItems possui dados", async () => {
     // Injetamos 2 itens no array controlado pelo mock
-    mockItems.push(
-      { id: 1, name: "Item 1", price: 100 } as any,
-      { id: 2, name: "Item 2", price: 200 } as any
-    );
+    mockItems.push(createMockItem(1, "Item 1", 100), createMockItem(2, "Item 2", 200));
     
     await renderHome();
     
@@ -60,7 +71,7 @@ describe("Home Page", () => {
 
   // TESTE 5: COM MOCK E NEGATIVO
   it("deve exibir mensagem de erro e nenhum card quando a API falhar", async () => {
-    (getSkins as jest.Mock).mockRejectedValueOnce(new Error("API fora do ar"));
+    mockGetSkins.mockRejectedValueOnce(new Error("API fora do ar"));
 
     await renderHome();
 
