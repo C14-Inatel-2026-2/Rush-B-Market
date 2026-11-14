@@ -12,9 +12,9 @@ FRONTEND: somente Frontend na Vercel.'''
         )
         string(
             name: 'RENDER_HEALTH_URL',
-            defaultValue: '',
+            defaultValue: 'https://rush-b-market.onrender.com/actuator/health',
             trim: true,
-            description: 'URL pública do health check do Backend, incluindo /actuator/health. Obrigatória quando BACKEND estiver selecionado.'
+            description: 'URL pública do health check do Backend no Render.'
         )
     }
 
