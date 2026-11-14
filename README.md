@@ -144,6 +144,25 @@ cd Frontend && npm install && npm test
 | J4 – Build Frontend | `CI-CD/J4-Build-Frontend.Jenkinsfile` | Gera e valida o build de produção do Next.js |
 | J5 – Deploy Frontend | `CI-CD/J5-Deploy-Frontend.Jenkinsfile` | Gera a imagem Docker de produção, sobe o container e publica na Vercel |
 
+
+## Refactorings
+
+As refatorações realizadas no projeto têm como objetivo melhorar a estrutura interna,
+a legibilidade e a manutenibilidade do código, preservando o comportamento externo
+das aplicações.
+
+Cada alteração é documentada com o code smell identificado, a técnica de refactoring
+aplicada, sua justificativa e o respectivo Pull Request.
+
+### Bruno Alvarenga — Backend / QA
+
+| Code smell | Refactoring aplicado | Justificativa | Pull Request |
+| --- | --- | --- | --- |
+| Código duplicado em buscas de skins | A definir — Extract Method | Centralizar a busca por ID e o tratamento de SkinNotFoundException, evitando repetição. | Pendente |
+| Código duplicado em buscas de players | A definir — Extract Method | Centralizar a busca por ID e o tratamento de PlayerNotFoundException, evitando repetição. | Pendente |
+
+
+
 ## Fluxo de trabalho
 
 1. Cada tarefa vem de uma história do backlog no Jira.
