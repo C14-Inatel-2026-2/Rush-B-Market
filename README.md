@@ -181,6 +181,15 @@ aplicada, sua justificativa e o respectivo Pull Request.
 
 **Validação:** os 53 testes do Frontend continuaram passando nos dois PRs, sem mudança de comportamento. Depois, no PR #80 (US-05), o estado dos filtros do Header foi para o `MarketFiltersContext`; os subcomponentes e o `STYLES` continuam no código.
 
+### Gabriel Pivoto — Frontend / QA
+
+| Code smell | Refactoring aplicado | Justificativa | Pull Request |
+| --- | --- | --- | --- |
+| Regra de busca e categoria misturada à renderização de `SkinGrid`. | Extract Function (`filterSkins`) em módulo próprio. | Separar a regra que seleciona as skins da montagem visual do grid, mantendo os mesmos critérios e resultados. | [#101](https://github.com/C14-Inatel-2026-2/Rush-B-Market/pull/101) |
+| Casts `as any` e `as jest.Mock` nos testes da home, contornando os tipos do item e do mock da API. | Extract Test Data Builder (`createMockItem`) e mock tipado (`jest.mocked`). | Manter os itens de teste compatíveis com o tipo `Item` e remover casts inseguros sem alterar os cenários. | [#102](https://github.com/C14-Inatel-2026-2/Rush-B-Market/pull/102) |
+
+**Validação:** 15 suítes e 79 testes passaram; lint sem erros; build de produção concluído com sucesso após as duas refatorações.
+
 ## Fluxo de trabalho
 
 1. Cada tarefa vem de uma história do backlog no Jira.
