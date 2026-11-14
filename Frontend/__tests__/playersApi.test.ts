@@ -15,8 +15,11 @@ describe("playersApi", () => {
     expect(errorMessageFrom(body, 400)).toBe("Email must be valid · Password must have at least 6 characters");
   });
 
-  it("usa a mensagem do ErrorResponse ou o status como fallback", () => {
+  it("usa a mensagem do ErrorResponse", () => {
     expect(errorMessageFrom({ message: "Email already exists" }, 409)).toBe("Email already exists");
+  });
+
+  it("usa o status como fallback quando o corpo não tem mensagem", () => {
     expect(errorMessageFrom(null, 500)).toBe("Erro 500");
   });
 
