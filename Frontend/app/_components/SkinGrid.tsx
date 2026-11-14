@@ -4,19 +4,12 @@ import Link from "next/link";
 import ItemCard from "./ItemCard";
 import type { Item } from "../../data/mockItems";
 import { useMarketFilters } from "./MarketFiltersContext";
+import { filterSkins } from "./filterSkins";
 
 // Grade responsiva de cards; cada card leva ao detalhe da skin (/skin/[id])
 export default function SkinGrid({ items }: { items: Item[] }) {
   const { activeFilter, query } = useMarketFilters();
-  const normalizedQuery = query.trim().toLocaleLowerCase("pt-BR");
-  const filteredItems = items.filter((item) => {
-    const matchesCategory =
-      activeFilter === "ALL" ||
-      (activeFilter === "COVERT"
-        ? item.category.toUpperCase().startsWith("COVERT")
-        : item.category.toUpperCase().endsWith(activeFilter));
-    return matchesCategory && item.name.toLocaleLowerCase("pt-BR").includes(normalizedQuery);
-  });
+  const filteredItems = filterSkins(items, activeFilter, query);
 
   if (filteredItems.length === 0) {
     return <p className="text-[11px] tracking-[0.1em] text-[#5a6069]">Nenhuma skin encontrada</p>;
