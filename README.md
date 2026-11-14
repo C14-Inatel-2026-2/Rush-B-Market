@@ -162,6 +162,14 @@ aplicada, sua justificativa e o respectivo Pull Request.
 | Código duplicado em buscas de players | A definir — Extract Method | Centralizar a busca por ID e o tratamento de PlayerNotFoundException, evitando repetição. | Pendente |
 
 
+## Refactorings
+
+Cada integrante aplicou pelo menos 2 refactorings, com testes e pipeline verdes antes e depois.
+
+| Integrante | Code smell | Refactoring aplicado | Por quê | PR |
+| --- | --- | --- | --- | --- |
+| Bruce Alvarenga | Código duplicado: a montagem completa de `Skin` com builder repetida nos testes do `SkinServiceQueryTest` | Extrair método: auxiliar `novaSkin(id, nome, arma)` | Uma mudança na entidade `Skin` passa a ser ajustada num lugar só, e os testes ficam focados no que conferem (id e nome) | [#66](https://github.com/C14-Inatel-2026-2/Rush-B-Market/pull/66) |
+| Bruce Alvarenga | Método longo com comentários explicando o código: `SkinService.addSkinToPlayer` (`// Regra 1, 2, 3`) | Extrair método: `findPlayerOrThrow`, `validateSkinLimit`, `validateUniqueName` e `validateUniqueWeapon` | O método passa a se ler como uma lista de regras, e os nomes substituem os comentários, que podiam ficar desatualizados. Mesmas exceções, mensagens e ordem: o comportamento não muda | [#67](https://github.com/C14-Inatel-2026-2/Rush-B-Market/pull/67) |
 
 ## Fluxo de trabalho
 
